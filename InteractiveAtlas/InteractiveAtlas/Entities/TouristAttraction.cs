@@ -6,27 +6,17 @@ namespace InteractiveAtlas.Entities
     [Table("TouristAttractions")]
     public class TouristAttraction
     {
-        public int provinceId { get; set; }
+        public int Id { get; set; }
 
-        public string name { get; set; }
+        public int ProvinceId { get; set; }
 
-        public string Capital { get; set; }
+        public string Name { get; set; } = null!;
 
-        public float areaKm2 { get; set; }
+        public string? Description { get; set; }
 
-        public int population { get; set; }
+        public string? Location { get; set; }
 
-        public float density { get; set; }
-
-        public string region { get; set; }
-
-        public float  latitude { get; set; }
-
-        public float longitude { get; set; }
-
-        public string imageUrl { get; set; }
-
-        public string description { get; set; }
+        public string? ImageUrl { get; set; }
 
 
     }
