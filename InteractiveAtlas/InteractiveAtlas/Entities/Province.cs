@@ -6,27 +6,28 @@ namespace InteractiveAtlas.Entities
     [Table("Provinces")]
     public class Province
     {
-        public int provinceId { get; set; }
+        [Column("ProvinceId")]
+        public int Id { get; set; }
 
-        public string name { get; set; }
+        public string Name { get; set; } = null!;
 
-        public string Capital { get; set; }
+        public string Capital { get; set; }=null!;
 
-        public float areaKm2 { get; set; }
+        public float AreaKm2 { get; set; }
 
-        public int population { get; set; }
+        public int Population { get; set; }
 
-        public float density { get; set; }
+        public float Density { get; set; }
 
-        public string region { get; set; }
+        public string Region { get; set; } = null!;
 
-        public float  latitude { get; set; }
+        public float  Latitude { get; set; }
 
-        public float longitude { get; set; }
+        public float Longitude { get; set; }
 
-        public string imageUrl { get; set; }
+        public string? ImageUrl { get; set; }
 
-        public string description { get; set; }
+        public string? Description { get; set; }
 
 
     }
