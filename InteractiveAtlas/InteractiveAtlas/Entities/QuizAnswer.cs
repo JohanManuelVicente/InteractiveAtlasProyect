@@ -1,0 +1,19 @@
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Globalization;
+
+namespace InteractiveAtlas.Entities
+{
+    [Table("QuizAnswers")]
+    public class QuizAnswer
+    {
+        [Column("AnswerId")]
+        public int Id { get; set; }
+
+        public int QuestionId { get; set; }
+
+        public string Text { get; set; } = null!;
+
+        public bool IsCorrect { get; set; }
+
+    }
+}
