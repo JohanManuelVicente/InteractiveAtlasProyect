@@ -15,5 +15,8 @@ namespace InteractiveAtlas.Entities
 
         public bool IsCorrect { get; set; }
 
+        //Navigation
+        public QuizQuestion Question { get; set; } = null!;
+
     }
 }

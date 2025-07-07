@@ -17,6 +17,6 @@ namespace InteractiveAtlas.Entities
 
         public DateTime DateTaken { get; set; } = DateTime.Now;
 
-        
+        public User User { get; set; } = null!;
     }
 }

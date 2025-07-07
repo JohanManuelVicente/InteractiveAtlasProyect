@@ -17,6 +17,9 @@ namespace InteractiveAtlas.Entities
 
         public string? imageUrl { get; set; }
 
+        //Navigation
+        public Province Province { get; set; } = null!;
+
 
     }
 }

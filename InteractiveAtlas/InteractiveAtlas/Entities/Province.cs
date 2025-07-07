@@ -30,7 +30,7 @@ namespace InteractiveAtlas.Entities
         public string? Description { get; set; }
 
 
-        // References
+        // Navigation
         public ICollection<TouristAttraction> TouristAttractions { get; set; } = new List<TouristAttraction>();
 
         public ICollection<TypicalProduct> TypicalProducts { get; set; } = new List<TypicalProduct>();

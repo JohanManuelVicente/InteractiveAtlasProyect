@@ -16,5 +16,12 @@ namespace InteractiveAtlas.Entities
         public string? DifficultyLevel { get; set; }
 
 
+        //Navigation
+        public Province Province { get; set; } = null!;
+
+        public ICollection<QuizAnswer> Answers { get; set; } = new List<QuizAnswer>();
+
+
+
     }
 }

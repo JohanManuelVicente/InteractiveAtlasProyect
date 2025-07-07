@@ -17,5 +17,8 @@ namespace InteractiveAtlas.Entities
 
         public bool IsAdmin { get; set; }  = false;
 
+        //Navigation
+        public ICollection<User> Users { get; set; } = new List<User>();    
+
     }
 }
