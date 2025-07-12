@@ -9,14 +9,16 @@ namespace InteractiveAtlas.Entities
         [Column("AnswerId")]
         public int Id { get; set; }
 
-        public int QuestionId { get; set; }
+       
 
         public string Text { get; set; } = null!;
 
         public bool IsCorrect { get; set; }
 
         //Navigation
-        public QuizQuestion Question { get; set; } = null!;
+
+        public int QuestionId { get; set; }
+        public virtual QuizQuestion Question { get; set; } = null!;
 
     }
 }

@@ -11,15 +11,18 @@ namespace InteractiveAtlas.Entities
 
         public string Text { get; set; } = null!;
 
-        public string? ProvinceId { get; set; }
+        
 
         public string? DifficultyLevel { get; set; }
 
 
         //Navigation
-        public Province? Province { get; set; } = null!;
 
-        public ICollection<QuizAnswer> Answers { get; set; } = new List<QuizAnswer>();
+        public string? ProvinceId { get; set; }
+
+        public virtual Province? Province { get; set; } = null!;
+
+        public virtual ICollection<QuizAnswer> Answers { get; set; } = new HashSet<QuizAnswer>();
 
 
 

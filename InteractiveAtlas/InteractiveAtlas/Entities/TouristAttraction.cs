@@ -9,8 +9,6 @@ namespace InteractiveAtlas.Entities
         [Column("AttractionId")]
         public int Id { get; set; }
 
-        public int ProvinceId { get; set; }
-
         public string Name { get; set; } = null!;
 
         public string? Description { get; set; }
@@ -20,7 +18,9 @@ namespace InteractiveAtlas.Entities
         public string? ImageUrl { get; set; }
 
         //Navigation
-        public Province Province { get; set; } = null!;
+
+        public int ProvinceId { get; set; }
+        public virtual Province Province { get; set; } = null!;
 
 
     }

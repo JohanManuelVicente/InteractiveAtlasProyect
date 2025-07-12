@@ -31,11 +31,11 @@ namespace InteractiveAtlas.Entities
 
 
         // Navigation
-        public ICollection<TouristAttraction> TouristAttractions { get; set; } = new List<TouristAttraction>();
+        public virtual ICollection<TouristAttraction> TouristAttractions { get; set; } = new List<TouristAttraction>();
 
-        public ICollection<TypicalProduct> TypicalProducts { get; set; } = new List<TypicalProduct>();
+        public virtual ICollection<TypicalProduct> TypicalProducts { get; set; } = new HashSet<TypicalProduct>();
 
-        public ICollection<QuizQuestion> QuizQuestions { get; set; } = new List<QuizQuestion>();
+        public virtual ICollection<QuizQuestion> QuizQuestions { get; set; } = new List<QuizQuestion>();
 
 
     }
