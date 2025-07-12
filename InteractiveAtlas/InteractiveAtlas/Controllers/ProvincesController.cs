@@ -152,7 +152,7 @@ namespace InteractiveAtlas.Controllers
             }
 
                 _provinces.Remove(province);
-            return Ok(province);
+            return Ok(_provinces);
 
 
         }
