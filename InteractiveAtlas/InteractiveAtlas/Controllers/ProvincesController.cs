@@ -140,5 +140,21 @@ namespace InteractiveAtlas.Controllers
 
 
         }
+
+        [HttpDelete("{id}")]
+
+        public IActionResult DeleteProvince (int id)
+        {
+            var province = _provinces.FirstOrDefault(p => p.Id == id);
+            if (province == null)
+            {
+                return NotFound($"Provincia con ID: {id} no fue encontrada");
+            }
+
+                _provinces.Remove(province);
+            return Ok(province);
+
+
+        }
     }
 }

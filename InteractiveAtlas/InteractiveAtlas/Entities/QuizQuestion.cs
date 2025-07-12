@@ -9,7 +9,7 @@ namespace InteractiveAtlas.Entities
         [Column("QuestionId")]
         public int Id { get; set; }
 
-        public string text { get; set; } = null!;
+        public string Text { get; set; } = null!;
 
         public string? ProvinceId { get; set; }
 
@@ -17,7 +17,7 @@ namespace InteractiveAtlas.Entities
 
 
         //Navigation
-        public Province Province { get; set; } = null!;
+        public Province? Province { get; set; } = null!;
 
         public ICollection<QuizAnswer> Answers { get; set; } = new List<QuizAnswer>();
 
