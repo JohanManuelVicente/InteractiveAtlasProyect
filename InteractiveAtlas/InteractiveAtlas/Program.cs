@@ -1,4 +1,11 @@
+using InteractiveAtlas.Data;
+using InteractiveAtlas.Entities;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<InteractiveAtlasDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("MainConnection")));
 
 // Add services to the container.
 
