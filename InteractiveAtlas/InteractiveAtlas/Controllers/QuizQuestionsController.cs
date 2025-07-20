@@ -3,6 +3,7 @@ using InteractiveAtlas.Domain.Entities;
 using System.Xml.Linq;
 using InteractiveAtlas.DTOs;
 using InteractiveAtlas.Infrastucture;
+using InteractiveAtlas.Infrastucture.Repository;
 
 namespace InteractiveAtlas.Controllers
 {
@@ -11,31 +12,44 @@ namespace InteractiveAtlas.Controllers
     public class QuizQuestionsController : ControllerBase
     {
         private readonly InteractiveAtlasDbContext _context;
+        private readonly ProvinceRepository _provinceRepository;
+        private readonly QuizQuestionRepository _quizQuestionRepository;
 
-        public QuizQuestionsController(InteractiveAtlasDbContext context)
+        public QuizQuestionsController(InteractiveAtlasDbContext context, ProvinceRepository provinceRepository, QuizQuestionRepository quizQuestionRepository)
         {
             _context = context;
+            _provinceRepository = provinceRepository;
+            _quizQuestionRepository = quizQuestionRepository;
         }
 
         [HttpGet]
-        public IActionResult GetQuizQuestions()
+        public async Task<IActionResult> GetQuizQuestions()
         {
-            var quizQuestions = _context.QuizQuestions.ToList();
+            return Ok(await _quizQuestionRepository.GetAllQuizQuestionAsync());
+        }
+
+        [HttpGet]
+        [Route("with-province")]
+        public async Task<IActionResult> GetQuizQuestionsWithProvince()
+        {
+            var quizQuestions = await _quizQuestionRepository.GetAllQuizQuestionWithProvinceAsync();
+
             var quizQuestionsResponse = new List<QuizQuestionDto>();
             quizQuestionsResponse = quizQuestions.Select(q => new QuizQuestionDto
             {
                 Id = q.Id,
                 Text = q.Text,
                 DifficultyLevel = q.DifficultyLevel,
-                ProvinceId = q.ProvinceId
+                ProvinceId = q.ProvinceId,
+                ProvinceName = q.Province?.Name
             }).ToList();
             return Ok(quizQuestionsResponse);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetQuizQuestionById(int id)
+        public async Task<IActionResult> GetQuizQuestionById(int id)
         {
-            var quizQuestion = _context.QuizQuestions.FirstOrDefault(q => q.Id == id);
+            var quizQuestion = await _quizQuestionRepository.GetQuizQuestionByIdAsync(id);
 
             if (quizQuestion == null)
             {
@@ -52,8 +66,15 @@ namespace InteractiveAtlas.Controllers
             return Ok(quizQuestionResponse);
         }
 
+        [HttpGet]
+        [Route("by-province")]
+        public async Task<IActionResult> GetQuizQuestionsByProvinceId([FromQuery] int provinceId)
+        {
+            return Ok(await _quizQuestionRepository.GetAllQuizQuestionByProvinceIdAsync(provinceId));
+        }
+
         [HttpPost]
-        public IActionResult CreateQuizQuestion([FromBody] QuizQuestionDto request)
+        public async Task<IActionResult> CreateQuizQuestion([FromBody] QuizQuestionDto request)
         {
             if (request == null)
             {
@@ -81,13 +102,13 @@ namespace InteractiveAtlas.Controllers
                 ProvinceId = request.ProvinceId,
             };
 
-            _context.QuizQuestions.Add(quizQuestion);
-            _context.SaveChanges();
+            quizQuestion = await _quizQuestionRepository.AddQuizQuestionAsync(quizQuestion);
+
             return Ok(new { id = quizQuestion.Id });
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateQuizQuestion(int id, [FromBody] QuizQuestionDto request)
+        public async Task<IActionResult> UpdateQuizQuestion(int id, [FromBody] QuizQuestionDto request)
         {
             if (id != request.Id)
             {
@@ -99,7 +120,7 @@ namespace InteractiveAtlas.Controllers
                 return BadRequest("El texto de la pregunta es nulo");
             }
 
-            var existingQuizQuestion = _context.QuizQuestions.FirstOrDefault(qq => qq.Id == request.Id);
+            var existingQuizQuestion = await _quizQuestionRepository.GetQuizQuestionByIdAsync(id);
             if (existingQuizQuestion == null)
             {
                 return NotFound($"La pregunta con ID {request.Id} no fue encontrada");
@@ -118,23 +139,20 @@ namespace InteractiveAtlas.Controllers
             existingQuizQuestion.DifficultyLevel = request.DifficultyLevel;
             existingQuizQuestion.ProvinceId = request.ProvinceId;
 
-            _context.QuizQuestions.Update(existingQuizQuestion);
-            _context.SaveChanges();
-
+            _quizQuestionRepository.UpdateQuizQuestionAsync(existingQuizQuestion).Wait();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteQuizQuestion(int id)
+        public async Task<IActionResult> DeleteQuizQuestion(int id)
         {
-            var quizQuestion = _context.QuizQuestions.FirstOrDefault(q => q.Id == id);
+            var quizQuestion = await _quizQuestionRepository.GetQuizQuestionByIdAsync(id);
             if (quizQuestion == null)
             {
                 return NotFound($"QuizQuestion con ID: {id} no fue encontrada");
             }
 
-            _context.QuizQuestions.Remove(quizQuestion);
-            _context.SaveChanges();
+            await _quizQuestionRepository.DeleteQuizQuestionAsync(id);
             return NoContent();
         }
     }

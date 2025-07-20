@@ -13,51 +13,21 @@ namespace InteractiveAtlas.Controllers
     [Route("api/[controller]")]
     public class ProvincesController : ControllerBase
     {
-
-        private readonly InteractiveAtlasDbContext _context;
         private readonly ProvinceRepository _provinceRepository;
         private readonly TypicalProductsRepository _typicalProductsRepository;
 
-        public ProvincesController(InteractiveAtlasDbContext context, ProvinceRepository provinceRepository, TypicalProductsRepository typicalProductsRepository /*Put others repositories*/ )
+        public ProvincesController(ProvinceRepository provinceRepository, TypicalProductsRepository typicalProductsRepository)
         {
-
-            _context = context;
             _provinceRepository = provinceRepository;
             _typicalProductsRepository = typicalProductsRepository;
-           
         }
 
-
         [HttpGet]
-
-        public IActionResult GetProvinces()
+        public async Task<IActionResult> GetProvinces()
         {
-           var provinces = _context.Provinces.ToList();
+            var provinces = await _provinceRepository.GetAllProvincesAsync();
 
-            var provincesResponse = new List<ProvinceDto>();
-
-            /* Forma mas funcional, solo que menos actualizada
-            foreach (var p in provinces)
-            {
-                var provinceDto = new ProvinceDto()
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Capital = p.Capital,
-                    AreaKm2 = p.AreaKm2,
-                    Population = p.Population,
-                    Density = p.Density,
-                    Region = p.Region,
-                    Latitude = p.Latitude,
-                    Longitude = p.Longitude,
-                    ImageUrl = p.ImageUrl,
-                    Description = p.Description
-                };
-
-            }*/
-
-            // Forma usando Linq, mas moderna pero dificil de debbugear
-            provincesResponse = provinces.Select(p => new ProvinceDto
+            var provincesResponse = provinces.Select(p => new ProvinceDto
             {
                 Id = p.Id,
                 Name = p.Name,
@@ -72,24 +42,55 @@ namespace InteractiveAtlas.Controllers
                 Description = p.Description
             }).ToList();
 
+            return Ok(provincesResponse);
+        }
+
+        [HttpGet]
+        [Route("with-details")]
+        public async Task<IActionResult> GetProvincesWithTypicalProducts()
+        {
+            var provinces = await _provinceRepository.GetAllProvincesWithDetailsAsync();
+
+            var provincesResponse = provinces.Select(p => new ProvinceDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Capital = p.Capital,
+                AreaKm2 = p.AreaKm2,
+                Population = p.Population,
+                Density = p.Density,
+                Region = p.Region,
+                Latitude = p.Latitude,
+                Longitude = p.Longitude,
+                ImageUrl = p.ImageUrl,
+                Description = p.Description,
+                TypicalProducts = p.TypicalProducts?.Select(tp => new TypicalProductDto
+                {
+                    Id = tp.Id,
+                    Name = tp.Name,
+                    Description = tp.Description,
+                    ImageUrl = tp.ImageUrl,
+                    ProvinceId = tp.ProvinceId
+                }).ToList(),
+                TouristAttractions = p.TouristAttractions?.Select(ta => new TouristAttractionDto
+                {
+                    Id = ta.Id,
+                    Name = ta.Name,
+                    Description = ta.Description,
+                    ImageUrl = ta.ImageUrl,
+                    ProvinceId = ta.ProvinceId
+                }).ToList()
+
+            }).ToList();
 
             return Ok(provincesResponse);
         }
 
         [HttpGet("{id}")]
-
         public async Task<IActionResult> GetProvinceById(int id)
         {
-            var province = await _context.Provinces.FirstOrDefaultAsync(province => province.Id == id);
-            //province = _provinces.Where(province => province.Id == id).FirstOrDefault();
+            var province = await _provinceRepository.GetProvinceByIdAsync(id);
 
-            /*    var province = _context.Provinces
-            //.Include(p => p.TouristAttractions)
-            //.Include(p => p.TypicalProducts)
-            //.Include(p => p.QuizQuestions)
-            //.FirstOrDefault(p => p.Id == id);
-            */
-            
             if (province == null)
             {
                 return BadRequest($"Province with ID: {id} not found");
@@ -109,123 +110,107 @@ namespace InteractiveAtlas.Controllers
                 ImageUrl = province.ImageUrl,
                 Description = province.Description
             };
+
             return Ok(provinceResponse);
-
-            /*var province = _context.Provinces
-    .FirstOrDefault(p => p.Id == id);
-
-            if (province == null)
-                return NotFound($"Provincia con ID {id} no encontrada");
-
-            var provinceDto = new ProvinceDto
-            {
-                Id = province.Id,
-                Name = province.Name,
-                Capital = province.Capital,
-                AreaKm2 = province.AreaKm2,
-                Population = province.Population,
-                Density = province.Density,
-                Region = province.Region,
-                Latitude = province.Latitude,
-                Longitude = province.Longitude,
-                ImageUrl = province.ImageUrl,
-                Description = province.Description
-            };
-
-            return Ok(provinceDto);
-            */
         }
 
         [HttpPost]
-
-        public IActionResult CreateProvince([FromBody] ProvinceDto required)
+        public async Task<IActionResult> CreateProvince([FromBody] ProvinceDto request)
         {
-            if (required == null)
+            if (request == null)
             {
                 return BadRequest("The Province cannot be null");
             }
+
+            if (string.IsNullOrWhiteSpace(request.Name))
+            {
+                return BadRequest("El nombre de la provincia es requerido");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Capital))
+            {
+                return BadRequest("La capital de la provincia es requerida");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Region))
+            {
+                return BadRequest("La región de la provincia es requerida");
+            }
+
             var province = new Province
             {
-                Name = required.Name,
-                Capital = required.Capital,
-                AreaKm2 = required.AreaKm2,
-                Population = required.Population,
-                Density = required.Density,
-                Region = required.Region,
-                Latitude = required.Latitude,
-                Longitude = required.Longitude,
-                ImageUrl = required.ImageUrl,
-                Description = required.Description
+                Name = request.Name,
+                Capital = request.Capital,
+                AreaKm2 = request.AreaKm2,
+                Population = request.Population,
+                Density = request.Density,
+                Region = request.Region,
+                Latitude = request.Latitude,
+                Longitude = request.Longitude,
+                ImageUrl = request.ImageUrl,
+                Description = request.Description
             };
-            _context.Provinces.Add(province);
-            _context.SaveChanges();
-            return Ok(new { id = province.Id });
 
+            province = await _provinceRepository.AddProvinceAsync(province);
+            return Ok(new { id = province.Id });
         }
 
         [HttpPut("{id}")]
-
-        public IActionResult UpdateProvince(int id, [FromBody] ProvinceDto required)
+        public async Task<IActionResult> UpdateProvince(int id, [FromBody] ProvinceDto request)
         {
-            if (id != required.Id)
+            if (id != request.Id)
             {
-                return BadRequest("El ID de la URL no coincide con el ID de la peticion");
+                return BadRequest("El ID de la URL no coincide con el ID de la petición");
             }
 
-            if (required.Name == null)
+            if (string.IsNullOrWhiteSpace(request.Name))
             {
-                return BadRequest("El nombre de la provincia es nulo o ID no coincide");
+                return BadRequest("El nombre de la provincia es requerido");
             }
 
-            var existingProvince = _context.Provinces.FirstOrDefault(prov => prov.Id == required.Id);
+            if (string.IsNullOrWhiteSpace(request.Capital))
+            {
+                return BadRequest("La capital de la provincia es requerida");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Region))
+            {
+                return BadRequest("La región de la provincia es requerida");
+            }
+
+            var existingProvince = await _provinceRepository.GetProvinceByIdAsync(id);
             if (existingProvince == null)
             {
-                return NotFound($" La provincia con ID {required.Id} no fue encontrado");
+                return NotFound($"La provincia con ID {request.Id} no fue encontrada");
             }
 
-            if (required.Capital == null)
-            {
-                return BadRequest("La capital de la provincia es nulo o ID no coincide");
-            }
+            // Actualizar propiedades
+            existingProvince.Name = request.Name;
+            existingProvince.Capital = request.Capital;
+            existingProvince.AreaKm2 = request.AreaKm2;
+            existingProvince.Population = request.Population;
+            existingProvince.Density = request.Density;
+            existingProvince.Region = request.Region;
+            existingProvince.Latitude = request.Latitude;
+            existingProvince.Longitude = request.Longitude;
+            existingProvince.ImageUrl = request.ImageUrl;
+            existingProvince.Description = request.Description;
 
-            if (required.Region == null)
-            {
-                return BadRequest("La region de la provincia es nulo o ID no coincide");
-            }
-
-            existingProvince.Name = required.Name;
-            existingProvince.Capital = required.Capital;
-            existingProvince.AreaKm2    = required.AreaKm2;
-            existingProvince.Population = required.Population;
-            existingProvince.Density = required.Density;
-            existingProvince.Region = required.Region;
-            existingProvince.Latitude = required.Latitude;
-            existingProvince.Longitude = required.Longitude;
-            existingProvince.ImageUrl = required.ImageUrl;
-            existingProvince.Description = required.Description;
-            //foranea
-            _context.Provinces.Update(existingProvince);
-            _context.SaveChanges();
+            await _provinceRepository.UpdateProvinceAsync(existingProvince);
             return NoContent();
-
-
         }
 
         [HttpDelete("{id}")]
-
-        public IActionResult DeleteProvince (int id)
+        public async Task<IActionResult> DeleteProvince(int id)
         {
-            var province = _context.Provinces.FirstOrDefault(p => p.Id == id);
+            var province = await _provinceRepository.GetProvinceByIdAsync(id);
             if (province == null)
             {
                 return NotFound($"Provincia con ID: {id} no fue encontrada");
             }
 
-            _context.Provinces.Remove(province);
-            _context.SaveChanges();
+            await _provinceRepository.DeleteProvinceAsync(id);
             return NoContent();
-
-
         }
     }
 }

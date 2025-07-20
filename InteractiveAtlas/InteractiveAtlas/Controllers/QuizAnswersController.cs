@@ -3,6 +3,7 @@ using InteractiveAtlas.Domain.Entities;
 using System.Xml.Linq;
 using InteractiveAtlas.DTOs;
 using InteractiveAtlas.Infrastucture;
+using InteractiveAtlas.Infrastucture.Repository;
 
 namespace InteractiveAtlas.Controllers
 {
@@ -11,16 +12,26 @@ namespace InteractiveAtlas.Controllers
     public class QuizAnswersController : ControllerBase
     {
         private readonly InteractiveAtlasDbContext _context;
+        private readonly QuizAnswerRepository _quizAnswerRepository;
 
-        public QuizAnswersController(InteractiveAtlasDbContext context)
+        public QuizAnswersController(InteractiveAtlasDbContext context, QuizAnswerRepository quizAnswerRepository)
         {
             _context = context;
+            _quizAnswerRepository = quizAnswerRepository;
         }
 
         [HttpGet]
-        public IActionResult GetQuizAnswers()
+        public async Task<IActionResult> GetQuizAnswers()
         {
-            var quizAnswers = _context.QuizAnswers.ToList();
+            return Ok(await _quizAnswerRepository.GetAllQuizAnswerAsync());
+        }
+
+        [HttpGet]
+        [Route("with-question")]
+        public async Task<IActionResult> GetQuizAnswersWithQuestion()
+        {
+            var quizAnswers = await _quizAnswerRepository.GetAllQuizAnswerWithQuestionAsync();
+
             var quizAnswersResponse = new List<QuizAnswerDto>();
             quizAnswersResponse = quizAnswers.Select(a => new QuizAnswerDto
             {
@@ -33,9 +44,9 @@ namespace InteractiveAtlas.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetQuizAnswerById(int id)
+        public async Task<IActionResult> GetQuizAnswerById(int id)
         {
-            var quizAnswer = _context.QuizAnswers.FirstOrDefault(a => a.Id == id);
+            var quizAnswer = await _quizAnswerRepository.GetQuizAnswerByIdAsync(id);
 
             if (quizAnswer == null)
             {
@@ -52,8 +63,15 @@ namespace InteractiveAtlas.Controllers
             return Ok(quizAnswerResponse);
         }
 
+        [HttpGet]
+        [Route("by-question")]
+        public async Task<IActionResult> GetQuizAnswersByQuestionId([FromQuery] int questionId)
+        {
+            return Ok(await _quizAnswerRepository.GetAllQuizAnswerByQuestionIdAsync(questionId));
+        }
+
         [HttpPost]
-        public IActionResult CreateQuizAnswer([FromBody] QuizAnswerDto request)
+        public async Task<IActionResult> CreateQuizAnswer([FromBody] QuizAnswerDto request)
         {
             if (request == null)
             {
@@ -78,13 +96,13 @@ namespace InteractiveAtlas.Controllers
                 QuestionId = request.QuestionId,
             };
 
-            _context.QuizAnswers.Add(quizAnswer);
-            _context.SaveChanges();
+            quizAnswer = await _quizAnswerRepository.AddQuizAnswerAsync(quizAnswer);
+
             return Ok(new { id = quizAnswer.Id });
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateQuizAnswer(int id, [FromBody] QuizAnswerDto request)
+        public async Task<IActionResult> UpdateQuizAnswer(int id, [FromBody] QuizAnswerDto request)
         {
             if (id != request.Id)
             {
@@ -96,7 +114,7 @@ namespace InteractiveAtlas.Controllers
                 return BadRequest("El texto de la respuesta es nulo");
             }
 
-            var existingQuizAnswer = _context.QuizAnswers.FirstOrDefault(qa => qa.Id == request.Id);
+            var existingQuizAnswer = await _quizAnswerRepository.GetQuizAnswerByIdAsync(id);
             if (existingQuizAnswer == null)
             {
                 return NotFound($"La respuesta con ID {request.Id} no fue encontrada");
@@ -112,23 +130,20 @@ namespace InteractiveAtlas.Controllers
             existingQuizAnswer.IsCorrect = request.IsCorrect;
             existingQuizAnswer.QuestionId = request.QuestionId;
 
-            _context.QuizAnswers.Update(existingQuizAnswer);
-            _context.SaveChanges();
-
+            _quizAnswerRepository.UpdateQuizAnswerAsync(existingQuizAnswer).Wait();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteQuizAnswer(int id)
+        public async Task<IActionResult> DeleteQuizAnswer(int id)
         {
-            var quizAnswer = _context.QuizAnswers.FirstOrDefault(a => a.Id == id);
+            var quizAnswer = await _quizAnswerRepository.GetQuizAnswerByIdAsync(id);
             if (quizAnswer == null)
             {
                 return NotFound($"QuizAnswer con ID: {id} no fue encontrada");
             }
 
-            _context.QuizAnswers.Remove(quizAnswer);
-            _context.SaveChanges();
+            await _quizAnswerRepository.DeleteQuizAnswerAsync(id);
             return NoContent();
         }
     }

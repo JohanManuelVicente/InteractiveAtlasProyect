@@ -8,5 +8,7 @@ namespace InteractiveAtlas.DTOs
         public string Text { get; set; } = null!;
         public string? DifficultyLevel { get; set; }
         public int? ProvinceId { get; set; }
+
+        public string? ProvinceName { get; set; }
     }
 }

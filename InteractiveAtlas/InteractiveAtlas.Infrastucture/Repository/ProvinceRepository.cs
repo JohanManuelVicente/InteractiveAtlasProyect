@@ -22,16 +22,17 @@ namespace InteractiveAtlas.Infrastucture.Repository
             return await _context.Provinces.ToListAsync();
         }
 
-        public async Task<List<Province>> GetAllProvincesWithTypicalProductsAsync()
+        public async Task<List<Province>> GetAllProvincesWithDetailsAsync()
         {
             return await _context.Provinces
                 .Include(p => p.TypicalProducts)
+                .Include(p => p.TouristAttractions)
                 .ToListAsync();
         }
 
         public async Task<Province?> GetProvinceByIdAsync(int id)
         {
-            return await _context.Provinces.FindAsync();
+            return await _context.Provinces.FindAsync(id);
         }
 
         public async Task<Province> AddProvinceAsync(Province province)

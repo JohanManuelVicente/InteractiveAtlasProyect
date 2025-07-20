@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using InteractiveAtlas.Domain.Entities;
-using System.Xml.Linq;
-
+﻿using InteractiveAtlas.Domain.Entities;
 using InteractiveAtlas.DTOs;
 using InteractiveAtlas.Infrastucture;
 using InteractiveAtlas.Infrastucture.Repository;
+using Microsoft.AspNetCore.Mvc;
 
 namespace InteractiveAtlas.Controllers
 {
@@ -13,22 +11,32 @@ namespace InteractiveAtlas.Controllers
     public class TypicalProductsController : ControllerBase
     {
         private readonly InteractiveAtlasDbContext _context;
+        private readonly ProvinceRepository _provinceRepository;
         private readonly TypicalProductsRepository _typicalProductsRepository;
 
         public TypicalProductsController(InteractiveAtlasDbContext context, ProvinceRepository provinceRepository, TypicalProductsRepository typicalProductsRepository /*Put others repositories*/ )
         {
-
             _context = context;
+            _provinceRepository = provinceRepository;
             _typicalProductsRepository = typicalProductsRepository;
 
         }
-
         [HttpGet]
 
-        public IActionResult GetTypicalProducts()
+        public async Task<IActionResult> GetTypicalProducts()
         {
 
-            var typicalProducts = _context.TypicalProducts.ToList();
+            return Ok(await _typicalProductsRepository.GetAllTypicalProductAsync());
+        }
+
+        [HttpGet]
+        [Route("with-province")]
+        public async Task<IActionResult> GetTypicalProductsWithProvince()
+        {
+
+            var typicalProducts = await _typicalProductsRepository.GetAllTypicalProductWithProvinceAsync();
+
+
             var typicalProductsResponse = new List<TypicalProductDto>();
             typicalProductsResponse = typicalProducts.Select(t => new TypicalProductDto
             {
@@ -36,16 +44,24 @@ namespace InteractiveAtlas.Controllers
                 Name = t.Name,
                 Description = t.Description,
                 ImageUrl = t.ImageUrl,
-                ProvinceId = t.ProvinceId
+                ProvinceId = t.ProvinceId,
+                ProvinceName = t.Province.Name
+                //Province = new ProvinceDto
+                //{
+                //    Id = t.Province.Id,
+                //    Name = t.Province.Name,
+                //    Capital = t.Province.Capital
+                //}
+
             }).ToList();
             return Ok(typicalProductsResponse);
         }
 
         [HttpGet("{id}")]
 
-        public IActionResult GetProductsById(int id)
+        public async Task<IActionResult> GetTypicalProductsById(int id)
         {
-            var typicalProduct = _context.TypicalProducts.FirstOrDefault(t => t.Id == id);
+            var typicalProduct = await _typicalProductsRepository.GetTypicalProductByIdAsync(id);
 
             if (typicalProduct == null)
             { return BadRequest($"Typical Product with ID: {id} not found"); }
@@ -62,9 +78,17 @@ namespace InteractiveAtlas.Controllers
 
         }
 
+        [HttpGet]
+        [Route("by-province")]
+        public async Task<IActionResult> GettypicalProductsByProvinceId([FromQuery]int provinceId)
+        {
+            return Ok(await _typicalProductsRepository.GetAllTypicalProductByProvinceIdAsync(provinceId));
+
+        }
+
         [HttpPost]
 
-        public IActionResult CreateTypicalProduct([FromBody] TypicalProductDto request)
+        public async Task<IActionResult> CreateTypicalProduct([FromBody] TypicalProductDto request)
         {
             if (request == null)
             {
@@ -83,7 +107,7 @@ namespace InteractiveAtlas.Controllers
             }
 
             var typicalProduct = new TypicalProduct
-            {   
+            {
                 Name = request.Name,
 
                 Description = request.Description,
@@ -91,16 +115,16 @@ namespace InteractiveAtlas.Controllers
                 ImageUrl = request.ImageUrl,
 
                 ProvinceId = request.ProvinceId,
-            
+
             };
-            _context.TypicalProducts.Add(typicalProduct);
-            _context.SaveChanges();
-            return Ok(new {id = typicalProduct.Id});
+            typicalProduct = await _typicalProductsRepository.AddTypicalProductAsync(typicalProduct);
+
+            return Ok(new { id = typicalProduct.Id });
 
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateTypicalProduct(int id, [FromBody] TypicalProductDto request)
+        public async Task<IActionResult> UpdateTypicalProduct(int id, [FromBody] TypicalProductDto request)
         {
             if (id != request.Id)
             {
@@ -112,7 +136,8 @@ namespace InteractiveAtlas.Controllers
                 return BadRequest("El nombre del producto típico es nulo");
             }
 
-            var existingTypicalProduct = _context.TypicalProducts.FirstOrDefault(tp => tp.Id == request.Id);
+            //var existingTypicalProduct = await _typicalProductsRepository.GetTypicalProductByIdAsync(id).Result; Way to put a Async method without make completely the method async
+            var existingTypicalProduct = await _typicalProductsRepository.GetTypicalProductByIdAsync(id);
             if (existingTypicalProduct == null)
             {
                 return NotFound($"El producto típico con ID {request.Id} no fue encontrado");
@@ -131,24 +156,22 @@ namespace InteractiveAtlas.Controllers
             existingTypicalProduct.ImageUrl = request.ImageUrl;
             existingTypicalProduct.ProvinceId = request.ProvinceId; // Actualizar la llave foránea
 
-            _context.TypicalProducts.Update(existingTypicalProduct);
-            _context.SaveChanges();
-
+            //_typicalProductsRepository.UpdateTypicalProductAsync(existingTypicalProduct).Wait();
+            _typicalProductsRepository.UpdateTypicalProductAsync(existingTypicalProduct).Wait();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
 
-        public IActionResult DeleteTypicalProduct(int id)
+        public async Task<IActionResult> DeleteTypicalProduct(int id)
         {
-            var typicalProduct = _context.TypicalProducts.FirstOrDefault(t => t.Id == id);
+            var typicalProduct = await _typicalProductsRepository.GetTypicalProductByIdAsync(id);
             if (typicalProduct == null)
             {
                 return NotFound($"TypicalProduct con ID: {id} no fue encontrada");
             }
 
-            _context.TypicalProducts.Remove(typicalProduct);
-            _context.SaveChanges();
+            await _typicalProductsRepository.DeleteTypicalProductAsync(id);
             return NoContent();
 
 

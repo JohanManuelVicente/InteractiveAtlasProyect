@@ -22,6 +22,11 @@ namespace InteractiveAtlas.Infrastucture.Repository
             return await _context.TypicalProducts.ToListAsync();
         }
 
+        public async Task<List<TypicalProduct>> GetAllTypicalProductByProvinceIdAsync(int provinceId)
+        {
+            return await _context.TypicalProducts.Where(t=> t.ProvinceId == provinceId).ToListAsync();
+        }
+
         public async Task<List<TypicalProduct>> GetAllTypicalProductWithProvinceAsync()
         {
             return await _context.TypicalProducts
@@ -30,7 +35,7 @@ namespace InteractiveAtlas.Infrastucture.Repository
         }
         public async Task<TypicalProduct?> GetTypicalProductByIdAsync(int id)
         {
-            return await _context.TypicalProducts.FindAsync();
+            return await _context.TypicalProducts.FindAsync(id);
         }
 
         public async Task<TypicalProduct> AddTypicalProductAsync(TypicalProduct typicalproduct)
@@ -49,13 +54,13 @@ namespace InteractiveAtlas.Infrastucture.Repository
 
         public async Task<bool> DeleteTypicalProductAsync(int id)
         {
-            var province = await _context.TypicalProducts.FindAsync(id);
-            if (province == null)
+            var typicalproduct = await _context.TypicalProducts.FindAsync(id);
+            if (typicalproduct == null)
             {
                 return false;
             }
 
-            _context.TypicalProducts.Remove(province);
+            _context.TypicalProducts.Remove(typicalproduct);
             await _context.SaveChangesAsync();
             return true;
         }

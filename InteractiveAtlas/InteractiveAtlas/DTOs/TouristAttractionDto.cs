@@ -10,5 +10,7 @@ namespace InteractiveAtlas.DTOs
         public string? Location { get; set; }
         public string? ImageUrl { get; set; }
         public int ProvinceId { get; set; }
+
+        public string? ProvinceName { get; set; }
     }
 }

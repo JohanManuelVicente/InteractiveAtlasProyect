@@ -3,6 +3,8 @@ using InteractiveAtlas.Domain.Entities;
 using System.Xml.Linq;
 using InteractiveAtlas.DTOs;
 using InteractiveAtlas.Infrastucture;
+using InteractiveAtlas.Infrastucture.Repository;
+using Microsoft.EntityFrameworkCore;
 
 namespace InteractiveAtlas.Controllers
 {
@@ -11,16 +13,28 @@ namespace InteractiveAtlas.Controllers
     public class TouristAttractionsController : ControllerBase
     {
         private readonly InteractiveAtlasDbContext _context;
+        private readonly ProvinceRepository _provinceRepository;
+        private readonly TouristAttractionRepository _touristAttractionRepository;
 
-        public TouristAttractionsController(InteractiveAtlasDbContext context)
+        public TouristAttractionsController(InteractiveAtlasDbContext context, ProvinceRepository provinceRepository, TouristAttractionRepository touristAttractionRepository)
         {
             _context = context;
+            _provinceRepository = provinceRepository;
+            _touristAttractionRepository = touristAttractionRepository;
         }
 
         [HttpGet]
-        public IActionResult GetTouristAttractions()
+        public async Task<IActionResult> GetTouristAttractions()
         {
-            var touristAttractions = _context.TouristAttractions.ToList();
+            return Ok(await _touristAttractionRepository.GetAllTouristAttractionAsync());
+        }
+
+        [HttpGet]
+        [Route("with-province")]
+        public async Task<IActionResult> GetTouristAttractionsWithProvince()
+        {
+            var touristAttractions = await _touristAttractionRepository.GetAllTouristAttractionWithProvinceAsync();
+
             var touristAttractionsResponse = new List<TouristAttractionDto>();
             touristAttractionsResponse = touristAttractions.Select(t => new TouristAttractionDto
             {
@@ -29,15 +43,16 @@ namespace InteractiveAtlas.Controllers
                 Description = t.Description,
                 Location = t.Location,
                 ImageUrl = t.ImageUrl,
-                ProvinceId = t.ProvinceId
+                ProvinceId = t.ProvinceId,
+                ProvinceName = t.Province.Name
             }).ToList();
             return Ok(touristAttractionsResponse);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetTouristAttractionById(int id)
+        public async Task<IActionResult> GetTouristAttractionById(int id)
         {
-            var touristAttraction = _context.TouristAttractions.FirstOrDefault(t => t.Id == id);
+            var touristAttraction = await _touristAttractionRepository.GetTouristAttractionByIdAsync(id);
 
             if (touristAttraction == null)
             {
@@ -56,15 +71,24 @@ namespace InteractiveAtlas.Controllers
             return Ok(touristAttractionResponse);
         }
 
+        [HttpGet]
+        [Route("by-province")]
+        public async Task<IActionResult> GetTouristAttractionsByProvinceId([FromQuery] int provinceId)
+        {
+            return Ok(await _touristAttractionRepository.GetAllTouristAttractionByProvinceIdAsync(provinceId));
+        }
+
         [HttpPost]
-        public IActionResult CreateTouristAttraction([FromBody] TouristAttractionDto request)
+        
+        public async Task<IActionResult> CreateTouristAttraction([FromBody] TouristAttractionDto request)
         {
             if (request == null)
             {
                 return BadRequest("The TouristAttraction cannot be null");
             }
 
-            var provinceExists = _context.Provinces.Any(p => p.Id == request.ProvinceId);
+            
+            var provinceExists = await _context.Provinces.AnyAsync(p => p.Id == request.ProvinceId);
             if (!provinceExists)
             {
                 return BadRequest($"La provincia con ID {request.ProvinceId} no existe");
@@ -81,16 +105,17 @@ namespace InteractiveAtlas.Controllers
                 Description = request.Description,
                 Location = request.Location,
                 ImageUrl = request.ImageUrl,
-                ProvinceId = request.ProvinceId,
+                ProvinceId = request.ProvinceId
+               
             };
 
-            _context.TouristAttractions.Add(touristAttraction);
-            _context.SaveChanges();
+            touristAttraction = await _touristAttractionRepository.AddTouristAttractionAsync(touristAttraction);
+
             return Ok(new { id = touristAttraction.Id });
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateTouristAttraction(int id, [FromBody] TouristAttractionDto request)
+        public async Task<IActionResult> UpdateTouristAttraction(int id, [FromBody] TouristAttractionDto request)
         {
             if (id != request.Id)
             {
@@ -102,7 +127,7 @@ namespace InteractiveAtlas.Controllers
                 return BadRequest("El nombre de la atracción turística es nulo");
             }
 
-            var existingTouristAttraction = _context.TouristAttractions.FirstOrDefault(ta => ta.Id == request.Id);
+            var existingTouristAttraction = await _touristAttractionRepository.GetTouristAttractionByIdAsync(id);
             if (existingTouristAttraction == null)
             {
                 return NotFound($"La atracción turística con ID {request.Id} no fue encontrada");
@@ -120,23 +145,20 @@ namespace InteractiveAtlas.Controllers
             existingTouristAttraction.ImageUrl = request.ImageUrl;
             existingTouristAttraction.ProvinceId = request.ProvinceId;
 
-            _context.TouristAttractions.Update(existingTouristAttraction);
-            _context.SaveChanges();
-
+            _touristAttractionRepository.UpdateTouristAttractionAsync(existingTouristAttraction).Wait();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteTouristAttraction(int id)
+        public async Task<IActionResult> DeleteTouristAttraction(int id)
         {
-            var touristAttraction = _context.TouristAttractions.FirstOrDefault(t => t.Id == id);
+            var touristAttraction = await _touristAttractionRepository.GetTouristAttractionByIdAsync(id);
             if (touristAttraction == null)
             {
                 return NotFound($"TouristAttraction con ID: {id} no fue encontrada");
             }
 
-            _context.TouristAttractions.Remove(touristAttraction);
-            _context.SaveChanges();
+            await _touristAttractionRepository.DeleteTouristAttractionAsync(id);
             return NoContent();
         }
     }

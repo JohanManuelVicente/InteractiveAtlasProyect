@@ -21,6 +21,9 @@ namespace InteractiveAtlas.Domain.Entities
         public int ProvinceId { get; set; }
         public virtual Province Province { get; set; } = null!;
 
-
+        //public TypicalProduct()
+        //{
+        //    Province = new Province();
+        //}
     }
 }

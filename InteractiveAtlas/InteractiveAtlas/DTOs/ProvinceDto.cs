@@ -25,5 +25,8 @@ namespace InteractiveAtlas.DTOs
         public string? ImageUrl { get; set; }
 
         public string? Description { get; set; }
+        public List<TypicalProductDto>? TypicalProducts { get;  set; }
+       
+        public List<TouristAttractionDto>? TouristAttractions { get; set; }
     }
 }
