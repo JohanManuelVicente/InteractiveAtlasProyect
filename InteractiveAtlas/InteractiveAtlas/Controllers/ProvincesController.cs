@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using InteractiveAtlas.Entities;
 using System.Xml.Linq;
+using InteractiveAtlas.Data;
+using InteractiveAtlas.DTOs;
+using Azure.Core;
+using Microsoft.EntityFrameworkCore;
 
 namespace InteractiveAtlas.Controllers
 {
@@ -9,43 +13,12 @@ namespace InteractiveAtlas.Controllers
     public class ProvincesController : ControllerBase
     {
 
-        private List<Province> _provinces;
+        private readonly InteractiveAtlasDbContext _context;
 
-        public ProvincesController()
+        public ProvincesController(InteractiveAtlasDbContext context)
         {
-            _provinces = new List<Province>();
-            _provinces.Add(new Province
-            {
-                Id = 1,
-                Name = "Santo Domingo",
-                Capital = "Santo Domingo Este",
-                AreaKm2 = 1300.35f,
-                Population = 3200000,
-                Density = 2461.5f,
-                Region = "Sur",
-                Latitude = 18.4861f,
-                Longitude = -69.9312f,
-                Description = "Es la provincia más poblada y centro político, económico y cultural del país.",
-                ImageUrl = "/images/provinces/santo-domingo.jpg"
-            });
 
-            _provinces.Add(new Province
-            {
-                Id = 2,
-                Name = "Santiago",
-                Capital = "Santiago de los Caballeros",
-                AreaKm2 = 2806.34f,
-                Population = 1020000,
-                Density = 363.5f,
-                Region = "Norte",
-                Latitude = 19.4517f,
-                Longitude = -70.6989f,
-                Description = "Conocida por su producción agrícola, zonas industriales y su cultura vibrante.",
-                ImageUrl = "/images/provinces/santiago.jpg"
-            });
-
-
-
+            _context = context;
 
         }
 
@@ -54,88 +27,124 @@ namespace InteractiveAtlas.Controllers
 
         public IActionResult GetProvinces()
         {
-            return Ok(_provinces);
+           var provinces = _context.Provinces.ToList();
+            return Ok(provinces);
         }
 
         [HttpGet("{id}")]
 
         public IActionResult GetProvinceById(int id)
         {
-            var province = _provinces.FirstOrDefault(province => province.Id == id);
+            var province = _context.Provinces.FirstOrDefault(province => province.Id == id);
             //province = _provinces.Where(province => province.Id == id).FirstOrDefault();
+
+            //    var province = _context.Provinces
+            //.Include(p => p.TouristAttractions)
+            //.Include(p => p.TypicalProducts)
+            //.Include(p => p.QuizQuestions)
+            //.FirstOrDefault(p => p.Id == id);
 
             if (province == null)
             {
-                return BadRequest($"Province with {id} not found");
+                return BadRequest($"Province with ID: {id} not found");
             }
             return Ok(province);
 
+            /*var province = _context.Provinces
+    .FirstOrDefault(p => p.Id == id);
+
+            if (province == null)
+                return NotFound($"Provincia con ID {id} no encontrada");
+
+            var provinceDto = new ProvinceDto
+            {
+                Id = province.Id,
+                Name = province.Name,
+                Capital = province.Capital,
+                AreaKm2 = province.AreaKm2,
+                Population = province.Population,
+                Density = province.Density,
+                Region = province.Region,
+                Latitude = province.Latitude,
+                Longitude = province.Longitude,
+                ImageUrl = province.ImageUrl,
+                Description = province.Description
+            };
+
+            return Ok(provinceDto);
+            */
         }
 
         [HttpPost]
 
-        public IActionResult CreateProvince([FromBody] Province province)
+        public IActionResult CreateProvince([FromBody] ProvinceDto required)
         {
-            if (province == null)
+            if (required == null)
             {
                 return BadRequest("The Province cannot be null");
             }
-
-            province.Id = _provinces.Count + 1;
-            _provinces.Add(province);
-            return Ok(province);
-
-            /*province.Id = _provinces.Count +1;
-            //province.Name = Name;
-            //province.Capital = "Barahona";
-            //province.AreaKm2 = 1200.35f;
-            //province.Population = 5300000;
-            //    province.Density = 2461.5f;
-            //    province.Region = "Sur";
-            //    province.Latitude = 19.4861f;
-            //    province.Longitude = -67.9312f;
-            //    province.Description = "Es uno de los pueblos más importantes de la parte sur de la isla, con un puerto de intensa actividad y una amplia oferta de atracciones ecoturísticas";
-            //province.ImageUrl = "/images/provinces/barahona.jpg";
-            */
+            var province = new Province
+            {
+                Name = required.Name,
+                Capital = required.Capital,
+                AreaKm2 = required.AreaKm2,
+                Population = required.Population,
+                Density = required.Density,
+                Region = required.Region,
+                Latitude = required.Latitude,
+                Longitude = required.Longitude,
+                ImageUrl = required.ImageUrl,
+                Description = required.Description
+            };
+            _context.Provinces.Add(province);
+            _context.SaveChanges();
+            return Ok(/*new { id = province.Id }*/province);
 
         }
 
         [HttpPut("{id}")]
 
-        public IActionResult UpdateProvince(int id, [FromBody] Province province)
+        public IActionResult UpdateProvince(int id, [FromBody] ProvinceDto required)
         {
-            if(province.Name == null)
+            if (id != required.Id)
+            {
+                return BadRequest("El ID de la URL no coincide con el ID de la peticion");
+            }
+
+            if (required.Name == null)
             {
                 return BadRequest("El nombre de la provincia es nulo o ID no coincide");
             }
 
-            var existingProvince = _provinces.FirstOrDefault(prov => prov.Id == id);
+            var existingProvince = _context.Provinces.FirstOrDefault(prov => prov.Id == required.Id);
             if (existingProvince == null)
             {
-                return NotFound($" La provincia con ID {province.Id} no fue encontrado");
+                return NotFound($" La provincia con ID {required.Id} no fue encontrado");
             }
 
-            if (province.Capital == null)
+            if (required.Capital == null)
             {
                 return BadRequest("La capital de la provincia es nulo o ID no coincide");
             }
 
-            if (province.Region == null)
+            if (required.Region == null)
             {
                 return BadRequest("La region de la provincia es nulo o ID no coincide");
             }
 
-            existingProvince.Name = province.Name;
-            existingProvince.Capital = province.Capital;
-            existingProvince.AreaKm2    = province.AreaKm2;
-            existingProvince.Population = province.Population;
-            existingProvince.Density = province.Density;
-            existingProvince.Region = province.Region;
-            existingProvince.Latitude = province.Latitude;
-            existingProvince.Longitude = province.Longitude;
-            existingProvince.ImageUrl = province.ImageUrl;
-            existingProvince.Description = province.Description;
-            _provinces.Add(existingProvince);
+            existingProvince.Name = required.Name;
+            existingProvince.Capital = required.Capital;
+            existingProvince.AreaKm2    = required.AreaKm2;
+            existingProvince.Population = required.Population;
+            existingProvince.Density = required.Density;
+            existingProvince.Region = required.Region;
+            existingProvince.Latitude = required.Latitude;
+            existingProvince.Longitude = required.Longitude;
+            existingProvince.ImageUrl = required.ImageUrl;
+            existingProvince.Description = required.Description;
+            //foranea
+            _context.Provinces.Update(existingProvince);
+            _context.SaveChanges();
             return Ok(existingProvince);
 
 
@@ -145,14 +154,15 @@ namespace InteractiveAtlas.Controllers
 
         public IActionResult DeleteProvince (int id)
         {
-            var province = _provinces.FirstOrDefault(p => p.Id == id);
+            var province = _context.Provinces.FirstOrDefault(p => p.Id == id);
             if (province == null)
             {
                 return NotFound($"Provincia con ID: {id} no fue encontrada");
             }
 
-                _provinces.Remove(province);
-            return Ok(_provinces);
+            _context.Provinces.Remove(province);
+            _context.SaveChanges();
+            return NoContent();
 
 
         }

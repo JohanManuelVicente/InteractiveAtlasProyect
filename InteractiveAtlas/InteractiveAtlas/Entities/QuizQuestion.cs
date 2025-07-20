@@ -15,9 +15,9 @@ namespace InteractiveAtlas.Entities
 
 
         //Navigation
-        public string? ProvinceId { get; set; }
+        public int? ProvinceId { get; set; }
         public virtual Province? Province { get; set; } = null!;
-        public virtual ICollection<QuizAnswer> Answers { get; set; } = new HashSet<QuizAnswer>();
+        public virtual ICollection<QuizAnswer> Answers { get; set; } = new List<QuizAnswer>();
 
 
 

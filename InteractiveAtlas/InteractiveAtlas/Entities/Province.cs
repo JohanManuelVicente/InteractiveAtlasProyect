@@ -13,7 +13,7 @@ namespace InteractiveAtlas.Entities
 
         public string Capital { get; set; }=null!;
 
-        public float AreaKm2 { get; set; }
+        public float AreaKm2 { get; set; } // If put FLOAT, in DB should put like REAL type
 
         public int Population { get; set; }
 
@@ -33,9 +33,9 @@ namespace InteractiveAtlas.Entities
         // Navigation
         public virtual ICollection<TouristAttraction> TouristAttractions { get; set; } = new List<TouristAttraction>();
 
-        public virtual ICollection<TypicalProduct> TypicalProducts { get; set; } = new HashSet<TypicalProduct>();
+        public virtual ICollection<TypicalProduct> TypicalProducts { get; set; } = new List<TypicalProduct>();
 
-        public virtual ICollection<QuizQuestion> QuizQuestions { get; set; } = new List<QuizQuestion>();
+        public virtual ICollection<QuizQuestion> QuizQuestions { get; set; } = new List<QuizQuestion>(); 
 
 
     }
