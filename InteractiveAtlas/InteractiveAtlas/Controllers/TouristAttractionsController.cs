@@ -21,7 +21,17 @@ namespace InteractiveAtlas.Controllers
         public IActionResult GetTouristAttractions()
         {
             var touristAttractions = _context.TouristAttractions.ToList();
-            return Ok(touristAttractions);
+            var touristAttractionsResponse = new List<TouristAttractionDto>();
+            touristAttractionsResponse = touristAttractions.Select(t => new TouristAttractionDto
+            {
+                Id = t.Id,
+                Name = t.Name,
+                Description = t.Description,
+                Location = t.Location,
+                ImageUrl = t.ImageUrl,
+                ProvinceId = t.ProvinceId
+            }).ToList();
+            return Ok(touristAttractionsResponse);
         }
 
         [HttpGet("{id}")]
@@ -34,7 +44,16 @@ namespace InteractiveAtlas.Controllers
                 return BadRequest($"Tourist Attraction with ID: {id} not found");
             }
 
-            return Ok(touristAttraction);
+            var touristAttractionResponse = new TouristAttractionDto
+            {
+                Id = touristAttraction.Id,
+                Name = touristAttraction.Name,
+                Description = touristAttraction.Description,
+                Location = touristAttraction.Location,
+                ImageUrl = touristAttraction.ImageUrl,
+                ProvinceId = touristAttraction.ProvinceId
+            };
+            return Ok(touristAttractionResponse);
         }
 
         [HttpPost]

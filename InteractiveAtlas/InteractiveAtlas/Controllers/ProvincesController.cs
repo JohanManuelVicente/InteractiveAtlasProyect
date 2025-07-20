@@ -28,7 +28,47 @@ namespace InteractiveAtlas.Controllers
         public IActionResult GetProvinces()
         {
            var provinces = _context.Provinces.ToList();
-            return Ok(provinces);
+
+            var provincesResponse = new List<ProvinceDto>();
+
+            /* Forma mas funcional, solo que menos actualizada
+            foreach (var p in provinces)
+            {
+                var provinceDto = new ProvinceDto()
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Capital = p.Capital,
+                    AreaKm2 = p.AreaKm2,
+                    Population = p.Population,
+                    Density = p.Density,
+                    Region = p.Region,
+                    Latitude = p.Latitude,
+                    Longitude = p.Longitude,
+                    ImageUrl = p.ImageUrl,
+                    Description = p.Description
+                };
+
+            }*/
+
+            // Forma usando Linq, mas moderna pero dificil de debbugear
+            provincesResponse = provinces.Select(p => new ProvinceDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Capital = p.Capital,
+                AreaKm2 = p.AreaKm2,
+                Population = p.Population,
+                Density = p.Density,
+                Region = p.Region,
+                Latitude = p.Latitude,
+                Longitude = p.Longitude,
+                ImageUrl = p.ImageUrl,
+                Description = p.Description
+            }).ToList();
+
+
+            return Ok(provincesResponse);
         }
 
         [HttpGet("{id}")]
@@ -38,17 +78,33 @@ namespace InteractiveAtlas.Controllers
             var province = _context.Provinces.FirstOrDefault(province => province.Id == id);
             //province = _provinces.Where(province => province.Id == id).FirstOrDefault();
 
-            //    var province = _context.Provinces
+            /*    var province = _context.Provinces
             //.Include(p => p.TouristAttractions)
             //.Include(p => p.TypicalProducts)
             //.Include(p => p.QuizQuestions)
             //.FirstOrDefault(p => p.Id == id);
-
+            */
+            
             if (province == null)
             {
                 return BadRequest($"Province with ID: {id} not found");
             }
-            return Ok(province);
+
+            var provinceResponse = new ProvinceDto
+            {
+                Id = province.Id,
+                Name = province.Name,
+                Capital = province.Capital,
+                AreaKm2 = province.AreaKm2,
+                Population = province.Population,
+                Density = province.Density,
+                Region = province.Region,
+                Latitude = province.Latitude,
+                Longitude = province.Longitude,
+                ImageUrl = province.ImageUrl,
+                Description = province.Description
+            };
+            return Ok(provinceResponse);
 
             /*var province = _context.Provinces
     .FirstOrDefault(p => p.Id == id);
@@ -98,7 +154,7 @@ namespace InteractiveAtlas.Controllers
             };
             _context.Provinces.Add(province);
             _context.SaveChanges();
-            return Ok(/*new { id = province.Id }*/province);
+            return Ok(new { id = province.Id });
 
         }
 
@@ -145,7 +201,7 @@ namespace InteractiveAtlas.Controllers
             //foranea
             _context.Provinces.Update(existingProvince);
             _context.SaveChanges();
-            return Ok(existingProvince);
+            return NoContent();
 
 
         }

@@ -21,7 +21,15 @@ namespace InteractiveAtlas.Controllers
         public IActionResult GetQuizQuestions()
         {
             var quizQuestions = _context.QuizQuestions.ToList();
-            return Ok(quizQuestions);
+            var quizQuestionsResponse = new List<QuizQuestionDto>();
+            quizQuestionsResponse = quizQuestions.Select(q => new QuizQuestionDto
+            {
+                Id = q.Id,
+                Text = q.Text,
+                DifficultyLevel = q.DifficultyLevel,
+                ProvinceId = q.ProvinceId
+            }).ToList();
+            return Ok(quizQuestionsResponse);
         }
 
         [HttpGet("{id}")]
@@ -34,7 +42,14 @@ namespace InteractiveAtlas.Controllers
                 return BadRequest($"Quiz Question with ID: {id} not found");
             }
 
-            return Ok(quizQuestion);
+            var quizQuestionResponse = new QuizQuestionDto
+            {
+                Id = quizQuestion.Id,
+                Text = quizQuestion.Text,
+                DifficultyLevel = quizQuestion.DifficultyLevel,
+                ProvinceId = quizQuestion.ProvinceId
+            };
+            return Ok(quizQuestionResponse);
         }
 
         [HttpPost]

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 
 namespace InteractiveAtlas.Entities
@@ -10,7 +11,7 @@ namespace InteractiveAtlas.Entities
         public int Id { get; set; }
 
         public string Text { get; set; } = null!;
-                
+        [StringLength(50)]
         public string? DifficultyLevel { get; set; }
 
 

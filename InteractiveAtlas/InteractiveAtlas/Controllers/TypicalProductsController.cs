@@ -21,9 +21,18 @@ namespace InteractiveAtlas.Controllers
 
         public IActionResult GetTypicalProducts()
         {
-            
+
             var typicalProducts = _context.TypicalProducts.ToList();
-            return Ok(typicalProducts);
+            var typicalProductsResponse = new List<TypicalProductDto>();
+            typicalProductsResponse = typicalProducts.Select(t => new TypicalProductDto
+            {
+                Id = t.Id,
+                Name = t.Name,
+                Description = t.Description,
+                ImageUrl = t.ImageUrl,
+                ProvinceId = t.ProvinceId
+            }).ToList();
+            return Ok(typicalProductsResponse);
         }
 
         [HttpGet("{id}")]
@@ -35,7 +44,15 @@ namespace InteractiveAtlas.Controllers
             if (typicalProduct == null)
             { return BadRequest($"Typical Product with ID: {id} not found"); }
 
-            return Ok(typicalProduct);
+            var typicalProductResponse = new TypicalProductDto
+            {
+                Id = typicalProduct.Id,
+                Name = typicalProduct.Name,
+                Description = typicalProduct.Description,
+                ImageUrl = typicalProduct.ImageUrl,
+                ProvinceId = typicalProduct.ProvinceId
+            };
+            return Ok(typicalProductResponse);
 
         }
 
