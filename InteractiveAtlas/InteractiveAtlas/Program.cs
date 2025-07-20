@@ -1,5 +1,5 @@
-using InteractiveAtlas.Data;
-using InteractiveAtlas.Entities;
+using InteractiveAtlas.Domain.Entities;
+using InteractiveAtlas.Infrastucture;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

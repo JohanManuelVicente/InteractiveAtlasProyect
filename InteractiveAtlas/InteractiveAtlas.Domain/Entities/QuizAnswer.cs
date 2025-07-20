@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 
-namespace InteractiveAtlas.Entities
+namespace InteractiveAtlas.Domain.Entities
 {
     [Table("QuizAnswers")]
     public class QuizAnswer

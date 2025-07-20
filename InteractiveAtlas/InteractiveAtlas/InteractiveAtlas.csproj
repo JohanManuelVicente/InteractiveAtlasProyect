@@ -21,7 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Migrations\" />
+    <ProjectReference Include="..\InteractiveAtlas.Domain\InteractiveAtlas.Domain.csproj" />
+    <ProjectReference Include="..\InteractiveAtlas.Infrastucture\InteractiveAtlas.Infrastucture.csproj" />
   </ItemGroup>
 
 </Project>

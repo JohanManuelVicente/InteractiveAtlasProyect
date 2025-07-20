@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using InteractiveAtlas.Entities;
+using InteractiveAtlas.Domain.Entities;
 
-namespace InteractiveAtlas.Data
+namespace InteractiveAtlas.Infrastucture
 {
     public class InteractiveAtlasDbContext : DbContext
     {
-        public InteractiveAtlasDbContext (DbContextOptions<InteractiveAtlasDbContext> options) : base(options) { }
+        public InteractiveAtlasDbContext(DbContextOptions<InteractiveAtlasDbContext> options) : base(options) { }
 
         public DbSet<Province> Provinces { get; set; }
 

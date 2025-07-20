@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using InteractiveAtlas.Entities;
+using InteractiveAtlas.Domain.Entities;
 using System.Xml.Linq;
-using InteractiveAtlas.Data;
+
 using InteractiveAtlas.DTOs;
+using InteractiveAtlas.Infrastucture;
 
 namespace InteractiveAtlas.Controllers
 {

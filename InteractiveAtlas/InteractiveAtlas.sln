@@ -5,6 +5,10 @@ VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InteractiveAtlas", "InteractiveAtlas\InteractiveAtlas.csproj", "{3B1CEFA4-EDAC-406D-8B80-17951F62A514}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InteractiveAtlas.Domain", "InteractiveAtlas.Domain\InteractiveAtlas.Domain.csproj", "{46A0A792-EA57-45CC-9A57-E52FAA0AAE5B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InteractiveAtlas.Infrastucture", "InteractiveAtlas.Infrastucture\InteractiveAtlas.Infrastucture.csproj", "{AE695C11-BC6E-4F2A-BA79-6D3268CB9D06}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{3B1CEFA4-EDAC-406D-8B80-17951F62A514}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B1CEFA4-EDAC-406D-8B80-17951F62A514}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B1CEFA4-EDAC-406D-8B80-17951F62A514}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46A0A792-EA57-45CC-9A57-E52FAA0AAE5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46A0A792-EA57-45CC-9A57-E52FAA0AAE5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46A0A792-EA57-45CC-9A57-E52FAA0AAE5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46A0A792-EA57-45CC-9A57-E52FAA0AAE5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE695C11-BC6E-4F2A-BA79-6D3268CB9D06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE695C11-BC6E-4F2A-BA79-6D3268CB9D06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE695C11-BC6E-4F2A-BA79-6D3268CB9D06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE695C11-BC6E-4F2A-BA79-6D3268CB9D06}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using InteractiveAtlas.Entities;
+using InteractiveAtlas.Domain.Entities;
 using System.Xml.Linq;
-using InteractiveAtlas.Data;
 using InteractiveAtlas.DTOs;
 using Azure.Core;
 using Microsoft.EntityFrameworkCore;
+using InteractiveAtlas.Infrastucture;
 
 namespace InteractiveAtlas.Controllers
 {
