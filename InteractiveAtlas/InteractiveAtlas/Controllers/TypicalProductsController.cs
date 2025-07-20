@@ -4,6 +4,7 @@ using System.Xml.Linq;
 
 using InteractiveAtlas.DTOs;
 using InteractiveAtlas.Infrastucture;
+using InteractiveAtlas.Infrastucture.Repository;
 
 namespace InteractiveAtlas.Controllers
 {
@@ -12,10 +13,14 @@ namespace InteractiveAtlas.Controllers
     public class TypicalProductsController : ControllerBase
     {
         private readonly InteractiveAtlasDbContext _context;
+        private readonly TypicalProductsRepository _typicalProductsRepository;
 
-        public TypicalProductsController(InteractiveAtlasDbContext context)
+        public TypicalProductsController(InteractiveAtlasDbContext context, ProvinceRepository provinceRepository, TypicalProductsRepository typicalProductsRepository /*Put others repositories*/ )
         {
+
             _context = context;
+            _typicalProductsRepository = typicalProductsRepository;
+
         }
 
         [HttpGet]

@@ -5,6 +5,7 @@ using InteractiveAtlas.DTOs;
 using Azure.Core;
 using Microsoft.EntityFrameworkCore;
 using InteractiveAtlas.Infrastucture;
+using InteractiveAtlas.Infrastucture.Repository;
 
 namespace InteractiveAtlas.Controllers
 {
@@ -14,12 +15,16 @@ namespace InteractiveAtlas.Controllers
     {
 
         private readonly InteractiveAtlasDbContext _context;
+        private readonly ProvinceRepository _provinceRepository;
+        private readonly TypicalProductsRepository _typicalProductsRepository;
 
-        public ProvincesController(InteractiveAtlasDbContext context)
+        public ProvincesController(InteractiveAtlasDbContext context, ProvinceRepository provinceRepository, TypicalProductsRepository typicalProductsRepository /*Put others repositories*/ )
         {
 
             _context = context;
-
+            _provinceRepository = provinceRepository;
+            _typicalProductsRepository = typicalProductsRepository;
+           
         }
 
 
@@ -73,9 +78,9 @@ namespace InteractiveAtlas.Controllers
 
         [HttpGet("{id}")]
 
-        public IActionResult GetProvinceById(int id)
+        public async Task<IActionResult> GetProvinceById(int id)
         {
-            var province = _context.Provinces.FirstOrDefault(province => province.Id == id);
+            var province = await _context.Provinces.FirstOrDefaultAsync(province => province.Id == id);
             //province = _provinces.Where(province => province.Id == id).FirstOrDefault();
 
             /*    var province = _context.Provinces
