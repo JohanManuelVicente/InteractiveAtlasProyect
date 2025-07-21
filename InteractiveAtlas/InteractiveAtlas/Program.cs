@@ -1,5 +1,5 @@
 using InteractiveAtlas.Domain.Entities;
-using InteractiveAtlas.Infrastucture;
+using InteractiveAtlas.Infrastucture.Data;
 using InteractiveAtlas.Infrastucture.Repository;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;

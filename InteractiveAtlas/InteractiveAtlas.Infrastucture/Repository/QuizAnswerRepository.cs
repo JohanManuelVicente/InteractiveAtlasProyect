@@ -1,4 +1,5 @@
 ﻿using InteractiveAtlas.Domain.Entities;
+using InteractiveAtlas.Infrastucture.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace InteractiveAtlas.Infrastucture.Repository

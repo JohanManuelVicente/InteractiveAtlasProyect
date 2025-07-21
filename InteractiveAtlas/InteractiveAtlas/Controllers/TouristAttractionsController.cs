@@ -2,9 +2,9 @@
 using InteractiveAtlas.Domain.Entities;
 using System.Xml.Linq;
 using InteractiveAtlas.DTOs;
-using InteractiveAtlas.Infrastucture;
 using InteractiveAtlas.Infrastucture.Repository;
 using Microsoft.EntityFrameworkCore;
+using InteractiveAtlas.Infrastucture.Data;
 
 namespace InteractiveAtlas.Controllers
 {

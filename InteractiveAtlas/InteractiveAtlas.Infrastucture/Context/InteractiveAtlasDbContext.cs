@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using InteractiveAtlas.Domain.Entities;
 
-namespace InteractiveAtlas.Infrastucture
+namespace InteractiveAtlas.Infrastucture.Data
 {
     public class InteractiveAtlasDbContext : DbContext
     {
