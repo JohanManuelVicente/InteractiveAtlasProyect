@@ -9,17 +9,17 @@ using System.Threading.Tasks;
 
 namespace InteractiveAtlas.Infrastucture.Repositories
 {
-    public class QuizQuestionRepository
+    public class QuizQuestionRepository : GenericRepository<QuizQuestion>
     {
         private readonly InteractiveAtlasDbContext _context;
-        public QuizQuestionRepository(InteractiveAtlasDbContext context)
+        public QuizQuestionRepository(InteractiveAtlasDbContext context) :base (context) 
         {
             _context = context;
         }
-        public async Task<List<QuizQuestion>> GetAllQuizQuestionAsync()
-        {
-            return await _context.QuizQuestions.ToListAsync();
-        }
+        //public async Task<List<QuizQuestion>> GetAllQuizQuestionAsync()
+        //{
+        //    return await _context.QuizQuestions.ToListAsync();
+        //}
         public async Task<List<QuizQuestion>> GetAllQuizQuestionByProvinceIdAsync(int provinceId)
         {
             return await _context.QuizQuestions
@@ -33,34 +33,34 @@ namespace InteractiveAtlas.Infrastucture.Repositories
                 .Include(p => p.Province)
                 .ToListAsync();
         }
-        public async Task<QuizQuestion?> GetQuizQuestionByIdAsync(int id)
+        public async Task<QuizQuestion?> GetQuizQuestionWithProvinceByIdAsync(int id)
         {
             return await _context.QuizQuestions
                  .Include(q => q.Province) 
                  .FirstOrDefaultAsync(q => q.Id == id);
         }
-        public async Task<QuizQuestion> AddQuizQuestionAsync(QuizQuestion quizquestion)
-        {
-            _context.QuizQuestions.Add(quizquestion);
+        //public async Task<QuizQuestion> AddQuizQuestionAsync(QuizQuestion quizquestion)
+        //{
+        //    _context.QuizQuestions.Add(quizquestion);
            
-            return quizquestion;
-        }
-        public async Task<QuizQuestion> UpdateQuizQuestionAsync(QuizQuestion quizquestion)
-        {
-            _context.Entry(quizquestion).State = EntityState.Modified;
+        //    return quizquestion;
+        //}
+        //public async Task<QuizQuestion> UpdateQuizQuestionAsync(QuizQuestion quizquestion)
+        //{
+        //    _context.Entry(quizquestion).State = EntityState.Modified;
           
-            return quizquestion;
-        }
-        public async Task<bool> DeleteQuizQuestionAsync(int id)
-        {
-            var quizquestion = await _context.QuizQuestions.FindAsync(id);
-            if (quizquestion == null)
-            {
-                return false;
-            }
-            _context.QuizQuestions.Remove(quizquestion);
+        //    return quizquestion;
+        //}
+        //public async Task<bool> DeleteQuizQuestionAsync(int id)
+        //{
+        //    var quizquestion = await _context.QuizQuestions.FindAsync(id);
+        //    if (quizquestion == null)
+        //    {
+        //        return false;
+        //    }
+        //    _context.QuizQuestions.Remove(quizquestion);
            
-            return true;
-        }
+        //    return true;
+        //}
     }
 }

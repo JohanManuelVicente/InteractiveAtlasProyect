@@ -6,18 +6,18 @@ namespace InteractiveAtlas.Infrastucture.Repositories
     {
         private readonly InteractiveAtlasDbContext _context;
         private readonly ProvinceRepository _provinceRepository;
-        private readonly TypicalProductsRepository _typicalProductsRepository;
+        private readonly TypicalProductRepository _typicalProductRepository;
         private readonly TouristAttractionRepository _touristAttractionRepository;
         private readonly QuizQuestionRepository _quizQuestionRepository;
         private readonly QuizAnswerRepository _quizAnswerRepository;
 
         public UnitOfWork(InteractiveAtlasDbContext context, ProvinceRepository provinceRepository,
-            TypicalProductsRepository typicalProductsRepository, TouristAttractionRepository touristAttractionRepository,
+            TypicalProductRepository typicalProductRepository, TouristAttractionRepository touristAttractionRepository,
             QuizQuestionRepository quizQuestionRepository, QuizAnswerRepository quizAnswerRepository)
         {
             _context = context;
             _provinceRepository = provinceRepository;
-            _typicalProductsRepository = typicalProductsRepository;
+            _typicalProductRepository = typicalProductRepository;
             _touristAttractionRepository = touristAttractionRepository;
             _quizQuestionRepository = quizQuestionRepository;
             _quizAnswerRepository = quizAnswerRepository;
@@ -27,7 +27,7 @@ namespace InteractiveAtlas.Infrastucture.Repositories
 
         public InteractiveAtlasDbContext Context => _context;
         public ProvinceRepository Province =>_provinceRepository;
-        public TypicalProductsRepository TypicalProducts => _typicalProductsRepository;
+        public TypicalProductRepository TypicalProduct => _typicalProductRepository;
         public TouristAttractionRepository TouristAttraction => _touristAttractionRepository;
         public QuizQuestionRepository QuizQuestion => _quizQuestionRepository;
         public QuizAnswerRepository QuizAnswer => _quizAnswerRepository;

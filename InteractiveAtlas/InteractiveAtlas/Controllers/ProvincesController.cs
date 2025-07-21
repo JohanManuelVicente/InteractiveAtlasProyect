@@ -22,7 +22,7 @@ namespace InteractiveAtlas.Controllers
         [HttpGet]
         public async Task<IActionResult> GetProvinces()
         {
-            var provinces = await _unitOfWork.Province.GetAllProvincesAsync();
+            var provinces = await _unitOfWork.Province.GetAllAsync();
 
             var provincesResponse = provinces.Select(p => new ProvinceDto
             {
@@ -86,7 +86,7 @@ namespace InteractiveAtlas.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProvinceById(int id)
         {
-            var province = await _unitOfWork.Province.GetProvinceByIdAsync(id);
+            var province = await _unitOfWork.Province.GetByIdAsync(id);
 
             if (province == null)
             {
@@ -148,7 +148,7 @@ namespace InteractiveAtlas.Controllers
                 Description = request.Description
             };
 
-            province = await _unitOfWork.Province.AddProvinceAsync(province);
+            province = await _unitOfWork.Province.AddAsync(province);
             await _unitOfWork.CompleteAsync();
             return Ok(new { id = province.Id });
         }
@@ -176,7 +176,7 @@ namespace InteractiveAtlas.Controllers
                 return BadRequest("La región de la provincia es requerida");
             }
 
-            var existingProvince = await _unitOfWork.Province.GetProvinceByIdAsync(id);
+            var existingProvince = await _unitOfWork.Province.GetByIdAsync(id);
             if (existingProvince == null)
             {
                 return NotFound($"La provincia con ID {request.Id} no fue encontrada");
@@ -194,7 +194,7 @@ namespace InteractiveAtlas.Controllers
             existingProvince.ImageUrl = request.ImageUrl;
             existingProvince.Description = request.Description;
 
-            await _unitOfWork.Province.UpdateProvinceAsync(existingProvince);
+            await _unitOfWork.Province.UpdateAsync(existingProvince);
             await _unitOfWork.CompleteAsync();
             return NoContent();
         }
@@ -202,13 +202,13 @@ namespace InteractiveAtlas.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProvince(int id)
         {
-            var province = await _unitOfWork.Province.GetProvinceByIdAsync(id);
+            var province = await _unitOfWork.Province.GetByIdAsync(id);
             if (province == null)
             {
                 return NotFound($"Provincia con ID: {id} no fue encontrada");
             }
 
-            await _unitOfWork.Province.DeleteProvinceAsync(id);
+            await _unitOfWork.Province.DeleteAsync(id);
             await _unitOfWork.CompleteAsync();
             return NoContent();
         }

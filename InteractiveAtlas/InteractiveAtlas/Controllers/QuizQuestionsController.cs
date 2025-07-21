@@ -21,7 +21,7 @@ namespace InteractiveAtlas.Controllers
         [HttpGet]
         public async Task<IActionResult> GetQuizQuestions()
         {
-            return Ok(await _unitOfWork.QuizQuestion.GetAllQuizQuestionAsync());
+            return Ok(await _unitOfWork.QuizQuestion.GetAllAsync());
         }
 
         [HttpGet]
@@ -45,7 +45,7 @@ namespace InteractiveAtlas.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetQuizQuestionById(int id)
         {
-            var quizQuestion = await _unitOfWork.QuizQuestion.GetQuizQuestionByIdAsync(id);
+            var quizQuestion = await _unitOfWork.QuizQuestion.GetQuizQuestionWithProvinceByIdAsync(id);
 
             if (quizQuestion == null)
             {
@@ -98,7 +98,7 @@ namespace InteractiveAtlas.Controllers
                 ProvinceId = request.ProvinceId,
             };
 
-            quizQuestion = await _unitOfWork.QuizQuestion.AddQuizQuestionAsync(quizQuestion);
+            quizQuestion = await _unitOfWork.QuizQuestion.AddAsync(quizQuestion);
             await _unitOfWork.CompleteAsync();
             return Ok(new { id = quizQuestion.Id });
         }
@@ -116,7 +116,7 @@ namespace InteractiveAtlas.Controllers
                 return BadRequest("El texto de la pregunta es nulo");
             }
 
-            var existingQuizQuestion = await _unitOfWork.QuizQuestion.GetQuizQuestionByIdAsync(id);
+            var existingQuizQuestion = await _unitOfWork.QuizQuestion.GetQuizQuestionWithProvinceByIdAsync(id);
             if (existingQuizQuestion == null)
             {
                 return NotFound($"La pregunta con ID {request.Id} no fue encontrada");
@@ -135,7 +135,7 @@ namespace InteractiveAtlas.Controllers
             existingQuizQuestion.DifficultyLevel = request.DifficultyLevel;
             existingQuizQuestion.ProvinceId = request.ProvinceId;
 
-            _unitOfWork.QuizQuestion.UpdateQuizQuestionAsync(existingQuizQuestion).Wait();
+            _unitOfWork.QuizQuestion.UpdateAsync(existingQuizQuestion).Wait();
             await _unitOfWork.CompleteAsync();
             return NoContent();
         }
@@ -143,13 +143,13 @@ namespace InteractiveAtlas.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteQuizQuestion(int id)
         {
-            var quizQuestion = await _unitOfWork.QuizQuestion.GetQuizQuestionByIdAsync(id);
+            var quizQuestion = await _unitOfWork.QuizQuestion.GetByIdAsync(id);
             if (quizQuestion == null)
             {
                 return NotFound($"QuizQuestion con ID: {id} no fue encontrada");
             }
 
-            await _unitOfWork.QuizQuestion.DeleteQuizQuestionAsync(id);
+            await _unitOfWork.QuizQuestion.DeleteAsync(id);
             await _unitOfWork.CompleteAsync();
             return NoContent();
         }

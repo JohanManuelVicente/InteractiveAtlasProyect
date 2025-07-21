@@ -19,12 +19,11 @@ builder.Services.AddDbContext<InteractiveAtlasDbContext>(options =>
 
 
 builder.Services.AddScoped<ProvinceRepository>();
-builder.Services.AddScoped<TypicalProductsRepository>();
+builder.Services.AddScoped<TypicalProductRepository>();
 builder.Services.AddScoped<TouristAttractionRepository>();
 builder.Services.AddScoped<QuizQuestionRepository>();
 builder.Services.AddScoped<QuizAnswerRepository>();
 builder.Services.AddScoped<UnitOfWork>();
-
 
 
 builder.Services.AddControllers()
