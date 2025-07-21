@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InteractiveAtlas.Infrastucture.Repository
+namespace InteractiveAtlas.Infrastucture.Repositories
 {
     public class TypicalProductsRepository
     {
@@ -36,20 +36,20 @@ namespace InteractiveAtlas.Infrastucture.Repository
         }
         public async Task<TypicalProduct?> GetTypicalProductByIdAsync(int id)
         {
-            return await _context.TypicalProducts.FindAsync(id);
+            return await _context.TypicalProducts
+        .Include(t => t.Province)
+        .FirstOrDefaultAsync(t => t.Id == id);
         }
 
         public async Task<TypicalProduct> AddTypicalProductAsync(TypicalProduct typicalproduct)
         {
             _context.TypicalProducts.Add(typicalproduct);
-            await _context.SaveChangesAsync();
             return typicalproduct;
         }
 
         public async Task<TypicalProduct> UpdateTypicalProductAsync(TypicalProduct typicalproduct)
         {
-            _context.Entry(typicalproduct).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            _context.TypicalProducts.Update(typicalproduct);
             return typicalproduct;
         }
 
@@ -62,7 +62,6 @@ namespace InteractiveAtlas.Infrastucture.Repository
             }
 
             _context.TypicalProducts.Remove(typicalproduct);
-            await _context.SaveChangesAsync();
             return true;
         }
     }

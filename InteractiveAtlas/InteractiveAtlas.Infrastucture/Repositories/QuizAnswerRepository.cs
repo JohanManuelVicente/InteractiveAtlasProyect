@@ -2,7 +2,7 @@
 using InteractiveAtlas.Infrastucture.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace InteractiveAtlas.Infrastucture.Repository
+namespace InteractiveAtlas.Infrastucture.Repositories
 {
     public class QuizAnswerRepository
     {
@@ -38,13 +38,13 @@ namespace InteractiveAtlas.Infrastucture.Repository
         public async Task<QuizAnswer> AddQuizAnswerAsync(QuizAnswer quizanswer)
         {
             _context.QuizAnswers.Add(quizanswer);
-            await _context.SaveChangesAsync();
+          
             return quizanswer;
         }
         public async Task<QuizAnswer> UpdateQuizAnswerAsync(QuizAnswer quizanswer)
         {
-            _context.Entry(quizanswer).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            _context.QuizAnswers.Update(quizanswer);
+           
             return quizanswer;
         }
         public async Task<bool> DeleteQuizAnswerAsync(int id)
@@ -55,7 +55,7 @@ namespace InteractiveAtlas.Infrastucture.Repository
                 return false;
             }
             _context.QuizAnswers.Remove(quizanswer);
-            await _context.SaveChangesAsync();
+         
             return true;
         }
     }

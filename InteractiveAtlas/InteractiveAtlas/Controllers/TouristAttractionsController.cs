@@ -2,7 +2,7 @@
 using InteractiveAtlas.Domain.Entities;
 using System.Xml.Linq;
 using InteractiveAtlas.DTOs;
-using InteractiveAtlas.Infrastucture.Repository;
+using InteractiveAtlas.Infrastucture.Repositories;
 using Microsoft.EntityFrameworkCore;
 using InteractiveAtlas.Infrastucture.Data;
 
@@ -12,28 +12,24 @@ namespace InteractiveAtlas.Controllers
     [Route("api/[controller]")]
     public class TouristAttractionsController : ControllerBase
     {
-        private readonly InteractiveAtlasDbContext _context;
-        private readonly ProvinceRepository _provinceRepository;
-        private readonly TouristAttractionRepository _touristAttractionRepository;
+        private readonly UnitOfWork _unitOfWork;
 
-        public TouristAttractionsController(InteractiveAtlasDbContext context, ProvinceRepository provinceRepository, TouristAttractionRepository touristAttractionRepository)
+        public TouristAttractionsController(UnitOfWork unitOfWork)
         {
-            _context = context;
-            _provinceRepository = provinceRepository;
-            _touristAttractionRepository = touristAttractionRepository;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetTouristAttractions()
         {
-            return Ok(await _touristAttractionRepository.GetAllTouristAttractionAsync());
+            return Ok(await _unitOfWork.TouristAttraction.GetAllTouristAttractionAsync());
         }
 
         [HttpGet]
         [Route("with-province")]
         public async Task<IActionResult> GetTouristAttractionsWithProvince()
         {
-            var touristAttractions = await _touristAttractionRepository.GetAllTouristAttractionWithProvinceAsync();
+            var touristAttractions = await _unitOfWork.TouristAttraction.GetAllTouristAttractionWithProvinceAsync();
 
             var touristAttractionsResponse = new List<TouristAttractionDto>();
             touristAttractionsResponse = touristAttractions.Select(t => new TouristAttractionDto
@@ -52,7 +48,7 @@ namespace InteractiveAtlas.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTouristAttractionById(int id)
         {
-            var touristAttraction = await _touristAttractionRepository.GetTouristAttractionByIdAsync(id);
+            var touristAttraction = await _unitOfWork.TouristAttraction.GetTouristAttractionByIdAsync(id);
 
             if (touristAttraction == null)
             {
@@ -75,7 +71,7 @@ namespace InteractiveAtlas.Controllers
         [Route("by-province")]
         public async Task<IActionResult> GetTouristAttractionsByProvinceId([FromQuery] int provinceId)
         {
-            return Ok(await _touristAttractionRepository.GetAllTouristAttractionByProvinceIdAsync(provinceId));
+            return Ok(await _unitOfWork.TouristAttraction.GetAllTouristAttractionByProvinceIdAsync(provinceId));
         }
 
         [HttpPost]
@@ -88,7 +84,7 @@ namespace InteractiveAtlas.Controllers
             }
 
             
-            var provinceExists = await _context.Provinces.AnyAsync(p => p.Id == request.ProvinceId);
+            var provinceExists = await _unitOfWork.Context.Provinces.AnyAsync(p => p.Id == request.ProvinceId);
             if (!provinceExists)
             {
                 return BadRequest($"La provincia con ID {request.ProvinceId} no existe");
@@ -109,8 +105,8 @@ namespace InteractiveAtlas.Controllers
                
             };
 
-            touristAttraction = await _touristAttractionRepository.AddTouristAttractionAsync(touristAttraction);
-
+            touristAttraction = await _unitOfWork.TouristAttraction.AddTouristAttractionAsync(touristAttraction);
+            await _unitOfWork.CompleteAsync();
             return Ok(new { id = touristAttraction.Id });
         }
 
@@ -127,13 +123,13 @@ namespace InteractiveAtlas.Controllers
                 return BadRequest("El nombre de la atracción turística es nulo");
             }
 
-            var existingTouristAttraction = await _touristAttractionRepository.GetTouristAttractionByIdAsync(id);
+            var existingTouristAttraction = await _unitOfWork.TouristAttraction.GetTouristAttractionByIdAsync(id);
             if (existingTouristAttraction == null)
             {
                 return NotFound($"La atracción turística con ID {request.Id} no fue encontrada");
             }
 
-            var provinceExists = _context.Provinces.Any(p => p.Id == request.ProvinceId);
+            var provinceExists = _unitOfWork.Context.Provinces.Any(p => p.Id == request.ProvinceId);
             if (!provinceExists)
             {
                 return BadRequest($"La provincia con ID {request.ProvinceId} no existe");
@@ -145,20 +141,22 @@ namespace InteractiveAtlas.Controllers
             existingTouristAttraction.ImageUrl = request.ImageUrl;
             existingTouristAttraction.ProvinceId = request.ProvinceId;
 
-            _touristAttractionRepository.UpdateTouristAttractionAsync(existingTouristAttraction).Wait();
+            _unitOfWork.TouristAttraction.UpdateTouristAttractionAsync(existingTouristAttraction).Wait();
+            await _unitOfWork.CompleteAsync();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTouristAttraction(int id)
         {
-            var touristAttraction = await _touristAttractionRepository.GetTouristAttractionByIdAsync(id);
+            var touristAttraction = await _unitOfWork.TouristAttraction.GetTouristAttractionByIdAsync(id);
             if (touristAttraction == null)
             {
                 return NotFound($"TouristAttraction con ID: {id} no fue encontrada");
             }
 
-            await _touristAttractionRepository.DeleteTouristAttractionAsync(id);
+            await _unitOfWork.TouristAttraction.DeleteTouristAttractionAsync(id);
+            await _unitOfWork.CompleteAsync();
             return NoContent();
         }
     }

@@ -1,6 +1,7 @@
 using InteractiveAtlas.Domain.Entities;
 using InteractiveAtlas.Infrastucture.Data;
-using InteractiveAtlas.Infrastucture.Repository;
+using InteractiveAtlas.Infrastucture.Repositories;
+
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -22,6 +23,7 @@ builder.Services.AddScoped<TypicalProductsRepository>();
 builder.Services.AddScoped<TouristAttractionRepository>();
 builder.Services.AddScoped<QuizQuestionRepository>();
 builder.Services.AddScoped<QuizAnswerRepository>();
+builder.Services.AddScoped<UnitOfWork>();
 
 
 

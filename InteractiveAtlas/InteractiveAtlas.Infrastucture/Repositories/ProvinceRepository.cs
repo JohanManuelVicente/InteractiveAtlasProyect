@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InteractiveAtlas.Infrastucture.Repository
+namespace InteractiveAtlas.Infrastucture.Repositories
 {
     public class ProvinceRepository
     {
@@ -39,14 +39,15 @@ namespace InteractiveAtlas.Infrastucture.Repository
         public async Task<Province> AddProvinceAsync(Province province)
         {
             _context.Provinces.Add(province);
-            await _context.SaveChangesAsync();
+          // await _context.SaveChangesAsync(); esto no es necesario gracias a la Unit Of Work
             return province;
         }
 
         public async Task<Province> UpdateProvinceAsync( Province province)
         {
-            _context.Entry(province).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+           // _context.Entry(province).State = EntityState.Modified;
+            _context.Provinces.Update(province); // Forma correcta
+        
             return province;
         }
 
@@ -59,8 +60,9 @@ namespace InteractiveAtlas.Infrastucture.Repository
             }
 
             _context.Provinces.Remove(province);
-            await _context.SaveChangesAsync();
+           
             return true;
         }
+
     }
 }

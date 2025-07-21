@@ -1,7 +1,7 @@
 ﻿using InteractiveAtlas.Domain.Entities;
 using InteractiveAtlas.DTOs;
 using InteractiveAtlas.Infrastucture.Data;
-using InteractiveAtlas.Infrastucture.Repository;
+using InteractiveAtlas.Infrastucture.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InteractiveAtlas.Controllers
@@ -10,23 +10,18 @@ namespace InteractiveAtlas.Controllers
     [Route("api/[controller]")]
     public class TypicalProductsController : ControllerBase
     {
-        private readonly InteractiveAtlasDbContext _context;
-        private readonly ProvinceRepository _provinceRepository;
-        private readonly TypicalProductsRepository _typicalProductsRepository;
+        private readonly UnitOfWork _unitOfWork;
 
-        public TypicalProductsController(InteractiveAtlasDbContext context, ProvinceRepository provinceRepository, TypicalProductsRepository typicalProductsRepository /*Put others repositories*/ )
+        public TypicalProductsController(UnitOfWork unitOfWork)
         {
-            _context = context;
-            _provinceRepository = provinceRepository;
-            _typicalProductsRepository = typicalProductsRepository;
-
+            _unitOfWork = unitOfWork;
         }
         [HttpGet]
 
         public async Task<IActionResult> GetTypicalProducts()
         {
 
-            return Ok(await _typicalProductsRepository.GetAllTypicalProductAsync());
+            return Ok(await _unitOfWork.TypicalProducts.GetAllTypicalProductAsync());
         }
 
         [HttpGet]
@@ -34,7 +29,7 @@ namespace InteractiveAtlas.Controllers
         public async Task<IActionResult> GetTypicalProductsWithProvince()
         {
 
-            var typicalProducts = await _typicalProductsRepository.GetAllTypicalProductWithProvinceAsync();
+            var typicalProducts = await _unitOfWork.TypicalProducts.GetAllTypicalProductWithProvinceAsync();
 
 
             var typicalProductsResponse = new List<TypicalProductDto>();
@@ -61,7 +56,7 @@ namespace InteractiveAtlas.Controllers
 
         public async Task<IActionResult> GetTypicalProductsById(int id)
         {
-            var typicalProduct = await _typicalProductsRepository.GetTypicalProductByIdAsync(id);
+            var typicalProduct = await _unitOfWork.TypicalProducts.GetTypicalProductByIdAsync(id);
 
             if (typicalProduct == null)
             { return BadRequest($"Typical Product with ID: {id} not found"); }
@@ -82,7 +77,7 @@ namespace InteractiveAtlas.Controllers
         [Route("by-province")]
         public async Task<IActionResult> GettypicalProductsByProvinceId([FromQuery]int provinceId)
         {
-            return Ok(await _typicalProductsRepository.GetAllTypicalProductByProvinceIdAsync(provinceId));
+            return Ok(await _unitOfWork.TypicalProducts.GetAllTypicalProductByProvinceIdAsync(provinceId));
 
         }
 
@@ -95,7 +90,7 @@ namespace InteractiveAtlas.Controllers
                 return BadRequest("The TypicalProduct cannot be null");
             }
 
-            var provinceExists = _context.Provinces.Any(p => p.Id == request.ProvinceId);
+            var provinceExists = _unitOfWork.Context.Provinces.Any(p => p.Id == request.ProvinceId);
             if (!provinceExists)
             {
                 return BadRequest($"La provincia con ID {request.ProvinceId} no existe");
@@ -117,7 +112,8 @@ namespace InteractiveAtlas.Controllers
                 ProvinceId = request.ProvinceId,
 
             };
-            typicalProduct = await _typicalProductsRepository.AddTypicalProductAsync(typicalProduct);
+            typicalProduct = await _unitOfWork.TypicalProducts.AddTypicalProductAsync(typicalProduct);
+            await _unitOfWork.CompleteAsync();
 
             return Ok(new { id = typicalProduct.Id });
 
@@ -137,14 +133,14 @@ namespace InteractiveAtlas.Controllers
             }
 
             //var existingTypicalProduct = await _typicalProductsRepository.GetTypicalProductByIdAsync(id).Result; Way to put a Async method without make completely the method async
-            var existingTypicalProduct = await _typicalProductsRepository.GetTypicalProductByIdAsync(id);
+            var existingTypicalProduct = await _unitOfWork.TypicalProducts.GetTypicalProductByIdAsync(id);
             if (existingTypicalProduct == null)
             {
                 return NotFound($"El producto típico con ID {request.Id} no fue encontrado");
             }
 
             // Validar que la provincia exista (llave foránea)
-            var provinceExists = _context.Provinces.Any(p => p.Id == request.ProvinceId);
+            var provinceExists = _unitOfWork.Context.Provinces.Any(p => p.Id == request.ProvinceId);
             if (!provinceExists)
             {
                 return BadRequest($"La provincia con ID {request.ProvinceId} no existe");
@@ -156,8 +152,9 @@ namespace InteractiveAtlas.Controllers
             existingTypicalProduct.ImageUrl = request.ImageUrl;
             existingTypicalProduct.ProvinceId = request.ProvinceId; // Actualizar la llave foránea
 
-            //_typicalProductsRepository.UpdateTypicalProductAsync(existingTypicalProduct).Wait();
-            _typicalProductsRepository.UpdateTypicalProductAsync(existingTypicalProduct).Wait();
+
+            _unitOfWork.TypicalProducts.UpdateTypicalProductAsync(existingTypicalProduct).Wait();
+            await _unitOfWork.CompleteAsync();
             return NoContent();
         }
 
@@ -165,13 +162,14 @@ namespace InteractiveAtlas.Controllers
 
         public async Task<IActionResult> DeleteTypicalProduct(int id)
         {
-            var typicalProduct = await _typicalProductsRepository.GetTypicalProductByIdAsync(id);
+            var typicalProduct = await _unitOfWork.TypicalProducts.GetTypicalProductByIdAsync(id);
             if (typicalProduct == null)
             {
                 return NotFound($"TypicalProduct con ID: {id} no fue encontrada");
             }
 
-            await _typicalProductsRepository.DeleteTypicalProductAsync(id);
+            await _unitOfWork.TypicalProducts.DeleteTypicalProductAsync(id);
+            await _unitOfWork.CompleteAsync();
             return NoContent();
 
 

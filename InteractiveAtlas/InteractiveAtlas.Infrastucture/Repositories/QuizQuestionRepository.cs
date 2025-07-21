@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InteractiveAtlas.Infrastucture.Repository
+namespace InteractiveAtlas.Infrastucture.Repositories
 {
     public class QuizQuestionRepository
     {
@@ -42,13 +42,13 @@ namespace InteractiveAtlas.Infrastucture.Repository
         public async Task<QuizQuestion> AddQuizQuestionAsync(QuizQuestion quizquestion)
         {
             _context.QuizQuestions.Add(quizquestion);
-            await _context.SaveChangesAsync();
+           
             return quizquestion;
         }
         public async Task<QuizQuestion> UpdateQuizQuestionAsync(QuizQuestion quizquestion)
         {
             _context.Entry(quizquestion).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+          
             return quizquestion;
         }
         public async Task<bool> DeleteQuizQuestionAsync(int id)
@@ -59,7 +59,7 @@ namespace InteractiveAtlas.Infrastucture.Repository
                 return false;
             }
             _context.QuizQuestions.Remove(quizquestion);
-            await _context.SaveChangesAsync();
+           
             return true;
         }
     }

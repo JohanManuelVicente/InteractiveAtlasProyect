@@ -5,7 +5,7 @@ using InteractiveAtlas.DTOs;
 using Azure.Core;
 using Microsoft.EntityFrameworkCore;
 using InteractiveAtlas.Infrastucture;
-using InteractiveAtlas.Infrastucture.Repository;
+using InteractiveAtlas.Infrastucture.Repositories;
 
 namespace InteractiveAtlas.Controllers
 {
@@ -13,19 +13,16 @@ namespace InteractiveAtlas.Controllers
     [Route("api/[controller]")]
     public class ProvincesController : ControllerBase
     {
-        private readonly ProvinceRepository _provinceRepository;
-        private readonly TypicalProductsRepository _typicalProductsRepository;
-
-        public ProvincesController(ProvinceRepository provinceRepository, TypicalProductsRepository typicalProductsRepository)
+        private readonly UnitOfWork _unitOfWork;
+        public ProvincesController(UnitOfWork unitOfWork)
         {
-            _provinceRepository = provinceRepository;
-            _typicalProductsRepository = typicalProductsRepository;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetProvinces()
         {
-            var provinces = await _provinceRepository.GetAllProvincesAsync();
+            var provinces = await _unitOfWork.Province.GetAllProvincesAsync();
 
             var provincesResponse = provinces.Select(p => new ProvinceDto
             {
@@ -49,7 +46,7 @@ namespace InteractiveAtlas.Controllers
         [Route("with-details")]
         public async Task<IActionResult> GetProvincesWithTypicalProducts()
         {
-            var provinces = await _provinceRepository.GetAllProvincesWithDetailsAsync();
+            var provinces = await _unitOfWork.Province.GetAllProvincesWithDetailsAsync();
 
             var provincesResponse = provinces.Select(p => new ProvinceDto
             {
@@ -89,7 +86,7 @@ namespace InteractiveAtlas.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProvinceById(int id)
         {
-            var province = await _provinceRepository.GetProvinceByIdAsync(id);
+            var province = await _unitOfWork.Province.GetProvinceByIdAsync(id);
 
             if (province == null)
             {
@@ -151,7 +148,8 @@ namespace InteractiveAtlas.Controllers
                 Description = request.Description
             };
 
-            province = await _provinceRepository.AddProvinceAsync(province);
+            province = await _unitOfWork.Province.AddProvinceAsync(province);
+            await _unitOfWork.CompleteAsync();
             return Ok(new { id = province.Id });
         }
 
@@ -178,7 +176,7 @@ namespace InteractiveAtlas.Controllers
                 return BadRequest("La región de la provincia es requerida");
             }
 
-            var existingProvince = await _provinceRepository.GetProvinceByIdAsync(id);
+            var existingProvince = await _unitOfWork.Province.GetProvinceByIdAsync(id);
             if (existingProvince == null)
             {
                 return NotFound($"La provincia con ID {request.Id} no fue encontrada");
@@ -196,20 +194,22 @@ namespace InteractiveAtlas.Controllers
             existingProvince.ImageUrl = request.ImageUrl;
             existingProvince.Description = request.Description;
 
-            await _provinceRepository.UpdateProvinceAsync(existingProvince);
+            await _unitOfWork.Province.UpdateProvinceAsync(existingProvince);
+            await _unitOfWork.CompleteAsync();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProvince(int id)
         {
-            var province = await _provinceRepository.GetProvinceByIdAsync(id);
+            var province = await _unitOfWork.Province.GetProvinceByIdAsync(id);
             if (province == null)
             {
                 return NotFound($"Provincia con ID: {id} no fue encontrada");
             }
 
-            await _provinceRepository.DeleteProvinceAsync(id);
+            await _unitOfWork.Province.DeleteProvinceAsync(id);
+            await _unitOfWork.CompleteAsync();
             return NoContent();
         }
     }
