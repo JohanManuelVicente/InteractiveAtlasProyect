@@ -20,7 +20,7 @@ namespace InteractiveAtlas.Services
 
             var TypicalProduct = await _unitOfWork.TypicalProducts.GetAllAsync();
 
-            return;
+            returns;
         }
 
         public async Task<IActionResult> GetTypicalProductsWithProvince()
