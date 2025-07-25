@@ -1,4 +1,5 @@
 ﻿
+using InteractiveAtlas.Infrastucture.Contracts;
 using InteractiveAtlas.Infrastucture.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -7,7 +8,7 @@ using System.Runtime.InteropServices;
 
 namespace InteractiveAtlas.Infrastucture.Repositories
 {
-    public class GenericRepository<T> where T : class
+    public class GenericRepository<T> : IRepository<T> where T : class
     {
         private readonly InteractiveAtlasDbContext _context;
 
@@ -18,10 +19,10 @@ namespace InteractiveAtlas.Infrastucture.Repositories
 
         public async Task<List<T>> GetAllAsync()
         {
-           return await _context.Set<T>().ToListAsync();   
+            return await _context.Set<T>().ToListAsync();
         }
 
-        public async Task<List<T>> GetAsync(Expression<Func<T, bool >> predicate)
+        public async Task<List<T>> GetAsync(Expression<Func<T, bool>> predicate)
         {
             return await _context.Set<T>().Where(predicate).ToListAsync();
         }
@@ -33,7 +34,7 @@ namespace InteractiveAtlas.Infrastucture.Repositories
 
         public async Task<T> AddAsync(T entity)
         {
-          _context.Set<T>().Add(entity);
+            _context.Set<T>().Add(entity);
 
             return entity;
         }
@@ -46,9 +47,9 @@ namespace InteractiveAtlas.Infrastucture.Repositories
         public async Task<bool> DeleteAsync(int id)
         {
             var entity = await GetByIdAsync(id);
-            if (entity != null)          
+            if (entity != null)
                 return false;
-            
+
             _context.Set<T>().Remove(entity);
             return true;
         }

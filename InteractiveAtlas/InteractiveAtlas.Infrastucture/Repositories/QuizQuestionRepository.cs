@@ -1,4 +1,5 @@
 ﻿using InteractiveAtlas.Domain.Entities;
+using InteractiveAtlas.Infrastucture.Contracts;
 using InteractiveAtlas.Infrastucture.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace InteractiveAtlas.Infrastucture.Repositories
 {
-    public class QuizQuestionRepository : GenericRepository<QuizQuestion>
+    public class QuizQuestionRepository : GenericRepository<QuizQuestion>, IQuizQuestionRepository
     {
         private readonly InteractiveAtlasDbContext _context;
-        public QuizQuestionRepository(InteractiveAtlasDbContext context) :base (context) 
+        public QuizQuestionRepository(InteractiveAtlasDbContext context) : base(context)
         {
             _context = context;
         }
@@ -23,7 +24,7 @@ namespace InteractiveAtlas.Infrastucture.Repositories
         public async Task<List<QuizQuestion>> GetAllQuizQuestionByProvinceIdAsync(int provinceId)
         {
             return await _context.QuizQuestions
-               .Include(q => q.Province) 
+               .Include(q => q.Province)
                .Where(q => q.ProvinceId == provinceId)
                .ToListAsync();
         }
@@ -36,19 +37,19 @@ namespace InteractiveAtlas.Infrastucture.Repositories
         public async Task<QuizQuestion?> GetQuizQuestionWithProvinceByIdAsync(int id)
         {
             return await _context.QuizQuestions
-                 .Include(q => q.Province) 
+                 .Include(q => q.Province)
                  .FirstOrDefaultAsync(q => q.Id == id);
         }
         //public async Task<QuizQuestion> AddQuizQuestionAsync(QuizQuestion quizquestion)
         //{
         //    _context.QuizQuestions.Add(quizquestion);
-           
+
         //    return quizquestion;
         //}
         //public async Task<QuizQuestion> UpdateQuizQuestionAsync(QuizQuestion quizquestion)
         //{
         //    _context.Entry(quizquestion).State = EntityState.Modified;
-          
+
         //    return quizquestion;
         //}
         //public async Task<bool> DeleteQuizQuestionAsync(int id)
@@ -59,7 +60,7 @@ namespace InteractiveAtlas.Infrastucture.Repositories
         //        return false;
         //    }
         //    _context.QuizQuestions.Remove(quizquestion);
-           
+
         //    return true;
         //}
     }

@@ -1,36 +1,43 @@
-﻿using InteractiveAtlas.Infrastucture.Data;
+﻿using InteractiveAtlas.Infrastucture.Contracts;
+using InteractiveAtlas.Infrastucture.Data;
 
 namespace InteractiveAtlas.Infrastucture.Repositories
 {
-    public class UnitOfWork : IDisposable
+    public class UnitOfWork : IDisposable, IUnitOfWork
     {
         private readonly InteractiveAtlasDbContext _context;
-        private readonly ProvinceRepository _provinceRepository;
-        private readonly TypicalProductRepository _typicalProductRepository;
-        private readonly TouristAttractionRepository _touristAttractionRepository;
-        private readonly QuizQuestionRepository _quizQuestionRepository;
-        private readonly QuizAnswerRepository _quizAnswerRepository;
+        
+        //private readonly IProvinceRepository _provinceRepository;
+      
 
-        public UnitOfWork(InteractiveAtlasDbContext context, ProvinceRepository provinceRepository,
-            TypicalProductRepository typicalProductRepository, TouristAttractionRepository touristAttractionRepository,
-            QuizQuestionRepository quizQuestionRepository, QuizAnswerRepository quizAnswerRepository)
+        public IProvinceRepository Provinces { get; }
+        public ITypicalProductRepository TypicalProducts { get; }
+        public ITouristAttractionRepository TouristAttractions  { get; }
+        public IQuizQuestionRepository QuizQuestions  { get; }
+        public IQuizAnswerRepository QuizAnswers { get; }
+
+        public UnitOfWork(InteractiveAtlasDbContext context, IProvinceRepository provinceRepository,
+            ITypicalProductRepository typicalProductRepository, ITouristAttractionRepository touristAttractionRepository,
+            IQuizQuestionRepository quizQuestionRepository, IQuizAnswerRepository quizAnswerRepository)
         {
             _context = context;
-            _provinceRepository = provinceRepository;
-            _typicalProductRepository = typicalProductRepository;
-            _touristAttractionRepository = touristAttractionRepository;
-            _quizQuestionRepository = quizQuestionRepository;
-            _quizAnswerRepository = quizAnswerRepository;
+            Provinces = provinceRepository;
+            TypicalProducts = typicalProductRepository;
+            TouristAttractions = touristAttractionRepository;
+            QuizQuestions = quizQuestionRepository;
+            QuizAnswers = quizAnswerRepository;
+           // _provinceRepository = provinceRepository;
+
         }
 
         // Forma con mas sentido y simplificada
 
         public InteractiveAtlasDbContext Context => _context;
-        public ProvinceRepository Province =>_provinceRepository;
-        public TypicalProductRepository TypicalProduct => _typicalProductRepository;
-        public TouristAttractionRepository TouristAttraction => _touristAttractionRepository;
-        public QuizQuestionRepository QuizQuestion => _quizQuestionRepository;
-        public QuizAnswerRepository QuizAnswer => _quizAnswerRepository;
+        //public IProvinceRepository Province => _provinceRepository;
+        //public ITypicalProductRepository TypicalProduct => _typicalProductRepository;
+        //public ITouristAttractionRepository TouristAttraction => _touristAttractionRepository;
+        //public IQuizQuestionRepository QuizQuestion => _quizQuestionRepository;
+        //public IQuizAnswerRepository QuizAnswer => _quizAnswerRepository;
 
 
 

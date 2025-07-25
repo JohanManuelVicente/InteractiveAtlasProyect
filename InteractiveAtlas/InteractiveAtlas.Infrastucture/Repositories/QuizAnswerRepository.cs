@@ -1,13 +1,14 @@
 ﻿using InteractiveAtlas.Domain.Entities;
+using InteractiveAtlas.Infrastucture.Contracts;
 using InteractiveAtlas.Infrastucture.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace InteractiveAtlas.Infrastucture.Repositories
 {
-    public class QuizAnswerRepository : GenericRepository<QuizAnswer>
+    public class QuizAnswerRepository : GenericRepository<QuizAnswer>, IQuizAnswerRepository
     {
         private readonly InteractiveAtlasDbContext _context;
-        public QuizAnswerRepository(InteractiveAtlasDbContext context) : base(context) 
+        public QuizAnswerRepository(InteractiveAtlasDbContext context) : base(context)
         {
             _context = context;
         }
@@ -31,20 +32,20 @@ namespace InteractiveAtlas.Infrastucture.Repositories
         public async Task<QuizAnswer?> GetQuizAnswerWithQuizQuestionByIdAsync(int id)
         {
             return await _context.QuizAnswers
-           .Include(a => a.Question) 
-           .FirstOrDefaultAsync(a => a.Id == id); 
+           .Include(a => a.Question)
+           .FirstOrDefaultAsync(a => a.Id == id);
 
         }
         //public async Task<QuizAnswer> AddQuizAnswerAsync(QuizAnswer quizanswer)
         //{
         //    _context.QuizAnswers.Add(quizanswer);
-          
+
         //    return quizanswer;
         //}
         //public async Task<QuizAnswer> UpdateQuizAnswerAsync(QuizAnswer quizanswer)
         //{
         //    _context.QuizAnswers.Update(quizanswer);
-           
+
         //    return quizanswer;
         //}
         //public async Task<bool> DeleteQuizAnswerAsync(int id)
@@ -55,7 +56,7 @@ namespace InteractiveAtlas.Infrastucture.Repositories
         //        return false;
         //    }
         //    _context.QuizAnswers.Remove(quizanswer);
-         
+
         //    return true;
         //}
     }

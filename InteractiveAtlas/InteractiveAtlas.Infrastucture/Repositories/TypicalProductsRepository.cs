@@ -1,4 +1,5 @@
 ﻿using InteractiveAtlas.Domain.Entities;
+using InteractiveAtlas.Infrastucture.Contracts;
 using InteractiveAtlas.Infrastucture.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace InteractiveAtlas.Infrastucture.Repositories
 {
-    public class TypicalProductRepository : GenericRepository<TypicalProduct>
+    public class TypicalProductRepository : GenericRepository<TypicalProduct>, ITypicalProductRepository
     {
         private readonly InteractiveAtlasDbContext _context;
 
-        public TypicalProductRepository(InteractiveAtlasDbContext context) : base (context)
+        public TypicalProductRepository(InteractiveAtlasDbContext context) : base(context)
         {
             _context = context;
         }
@@ -25,7 +26,7 @@ namespace InteractiveAtlas.Infrastucture.Repositories
 
         public async Task<List<TypicalProduct>> GetAllTypicalProductByProvinceIdAsync(int provinceId)
         {
-            return await _context.TypicalProducts.Where(t=> t.ProvinceId == provinceId).ToListAsync();
+            return await _context.TypicalProducts.Where(t => t.ProvinceId == provinceId).ToListAsync();
         }
 
         public async Task<List<TypicalProduct>> GetAllTypicalProductWithProvinceAsync()

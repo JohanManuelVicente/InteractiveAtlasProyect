@@ -4,6 +4,7 @@ using System.Xml.Linq;
 using InteractiveAtlas.DTOs;
 using InteractiveAtlas.Infrastucture.Repositories;
 using InteractiveAtlas.Infrastucture.Data;
+using InteractiveAtlas.Infrastucture.Contracts;
 
 namespace InteractiveAtlas.Controllers
 {
@@ -11,9 +12,9 @@ namespace InteractiveAtlas.Controllers
     [Route("api/[controller]")]
     public class QuizAnswersController : ControllerBase
     {
-        private readonly UnitOfWork _unitOfWork;
+        private readonly  IUnitOfWork _unitOfWork;
 
-        public QuizAnswersController(UnitOfWork unitOfWork)
+        public QuizAnswersController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -21,14 +22,14 @@ namespace InteractiveAtlas.Controllers
         [HttpGet]
         public async Task<IActionResult> GetQuizAnswers()
         {
-            return Ok(await _unitOfWork.QuizAnswer.GetAllAsync());
+            return Ok(await _unitOfWork.QuizAnswers.GetAllAsync());
         }
 
         [HttpGet]
         [Route("with-question")]
         public async Task<IActionResult> GetQuizAnswersWithQuestion()
         {
-            var quizAnswers = await _unitOfWork.QuizAnswer.GetAllQuizAnswerWithQuestionAsync();
+            var quizAnswers = await _unitOfWork.QuizAnswers.GetAllQuizAnswerWithQuestionAsync();
 
             var quizAnswersResponse = new List<QuizAnswerDto>();
             quizAnswersResponse = quizAnswers.Select(a => new QuizAnswerDto
@@ -44,7 +45,7 @@ namespace InteractiveAtlas.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetQuizAnswerById(int id)
         {
-            var quizAnswer = await _unitOfWork.QuizAnswer.GetQuizAnswerWithQuizQuestionByIdAsync(id);
+            var quizAnswer = await _unitOfWork.QuizAnswers.GetQuizAnswerWithQuizQuestionByIdAsync(id);
 
             if (quizAnswer == null)
             {
@@ -65,7 +66,7 @@ namespace InteractiveAtlas.Controllers
         [Route("by-question")]
         public async Task<IActionResult> GetQuizAnswersByQuestionId([FromQuery] int questionId)
         {
-            return Ok(await _unitOfWork.QuizAnswer.GetAllQuizAnswerByQuestionIdAsync(questionId));
+            return Ok(await _unitOfWork.QuizAnswers.GetAllQuizAnswerByQuestionIdAsync(questionId));
         }
 
         [HttpPost]
@@ -94,7 +95,7 @@ namespace InteractiveAtlas.Controllers
                 QuestionId = request.QuestionId,
             };
 
-            quizAnswer = await _unitOfWork.QuizAnswer.AddAsync(quizAnswer);
+            quizAnswer = await _unitOfWork.QuizAnswers.AddAsync(quizAnswer);
             await _unitOfWork.CompleteAsync();
             return Ok(new { id = quizAnswer.Id });
         }
@@ -112,7 +113,7 @@ namespace InteractiveAtlas.Controllers
                 return BadRequest("El texto de la respuesta es nulo");
             }
 
-            var existingQuizAnswer = await _unitOfWork.QuizAnswer.GetQuizAnswerWithQuizQuestionByIdAsync(id);
+            var existingQuizAnswer = await _unitOfWork.QuizAnswers.GetQuizAnswerWithQuizQuestionByIdAsync(id);
             if (existingQuizAnswer == null)
             {
                 return NotFound($"La respuesta con ID {request.Id} no fue encontrada");
@@ -128,7 +129,7 @@ namespace InteractiveAtlas.Controllers
             existingQuizAnswer.IsCorrect = request.IsCorrect;
             existingQuizAnswer.QuestionId = request.QuestionId;
 
-            _unitOfWork.QuizAnswer.UpdateAsync(existingQuizAnswer).Wait();
+            _unitOfWork.QuizAnswers.UpdateAsync(existingQuizAnswer).Wait();
             await _unitOfWork.CompleteAsync();
             return NoContent();
         }
@@ -136,13 +137,13 @@ namespace InteractiveAtlas.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteQuizAnswer(int id)
         {
-            var quizAnswer = await _unitOfWork.QuizAnswer.GetByIdAsync(id);
+            var quizAnswer = await _unitOfWork.QuizAnswers.GetByIdAsync(id);
             if (quizAnswer == null)
             {
                 return NotFound($"QuizAnswer con ID: {id} no fue encontrada");
             }
 
-            await _unitOfWork.QuizAnswer.DeleteAsync(id);
+            await _unitOfWork.QuizAnswers.DeleteAsync(id);
             await _unitOfWork.CompleteAsync();
             return NoContent();
         }

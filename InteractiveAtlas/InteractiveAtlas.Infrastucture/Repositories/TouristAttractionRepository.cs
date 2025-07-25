@@ -1,4 +1,5 @@
 ﻿using InteractiveAtlas.Domain.Entities;
+using InteractiveAtlas.Infrastucture.Contracts;
 using InteractiveAtlas.Infrastucture.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace InteractiveAtlas.Infrastucture.Repositories
 {
-    public class TouristAttractionRepository : GenericRepository<TouristAttraction>
-    { 
+    public class TouristAttractionRepository : GenericRepository<TouristAttraction>, ITouristAttractionRepository
+    {
         private readonly InteractiveAtlasDbContext _context;
-        public TouristAttractionRepository(InteractiveAtlasDbContext context) : base(context) 
+        public TouristAttractionRepository(InteractiveAtlasDbContext context) : base(context)
         {
             _context = context;
         }
@@ -33,7 +34,7 @@ namespace InteractiveAtlas.Infrastucture.Repositories
         public async Task<TouristAttraction?> GetTouristAttractionWithProvinceByIdAsync(int id)
         {
             return await _context.TouristAttractions
-        .Include(t => t.Province) 
+        .Include(t => t.Province)
         .FirstOrDefaultAsync(t => t.Id == id);
         }
         //public async Task<TouristAttraction> AddTouristAttractionAsync(TouristAttraction touristattraction)

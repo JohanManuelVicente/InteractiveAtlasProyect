@@ -1,5 +1,6 @@
 ﻿using InteractiveAtlas.Domain.Entities;
 using InteractiveAtlas.DTOs;
+using InteractiveAtlas.Infrastucture.Contracts;
 using InteractiveAtlas.Infrastucture.Data;
 using InteractiveAtlas.Infrastucture.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -10,9 +11,9 @@ namespace InteractiveAtlas.Controllers
     [Route("api/[controller]")]
     public class TypicalProductsController : ControllerBase
     {
-        private readonly UnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public TypicalProductsController(UnitOfWork unitOfWork)
+        public TypicalProductsController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -21,7 +22,7 @@ namespace InteractiveAtlas.Controllers
         public async Task<IActionResult> GetTypicalProducts()
         {
 
-            return Ok(await _unitOfWork.TypicalProduct.GetAllAsync());
+            return Ok(await _unitOfWork.TypicalProducts.GetAllAsync());
         }
 
         [HttpGet]
@@ -29,7 +30,7 @@ namespace InteractiveAtlas.Controllers
         public async Task<IActionResult> GetTypicalProductsWithProvince()
         {
 
-            var typicalProducts = await _unitOfWork.TypicalProduct.GetAllTypicalProductWithProvinceAsync();
+            var typicalProducts = await _unitOfWork.TypicalProducts.GetAllTypicalProductWithProvinceAsync();
 
 
             var typicalProductsResponse = new List<TypicalProductDto>();
@@ -56,7 +57,7 @@ namespace InteractiveAtlas.Controllers
 
         public async Task<IActionResult> GetTypicalProductsById(int id)
         {
-            var typicalProduct = await _unitOfWork.TypicalProduct.GetTypicalProductWithProvinceByIdAsync(id);
+            var typicalProduct = await _unitOfWork.TypicalProducts.GetTypicalProductWithProvinceByIdAsync(id);
 
             if (typicalProduct == null)
             { return BadRequest($"Typical Product with ID: {id} not found"); }
@@ -77,7 +78,7 @@ namespace InteractiveAtlas.Controllers
         [Route("by-province")]
         public async Task<IActionResult> GettypicalProductsByProvinceId([FromQuery]int provinceId)
         {
-            return Ok(await _unitOfWork.TypicalProduct.GetAllTypicalProductByProvinceIdAsync(provinceId));
+            return Ok(await _unitOfWork.TypicalProducts.GetAllTypicalProductByProvinceIdAsync(provinceId));
 
         }
 
@@ -112,7 +113,7 @@ namespace InteractiveAtlas.Controllers
                 ProvinceId = request.ProvinceId,
 
             };
-            typicalProduct = await _unitOfWork.TypicalProduct.AddAsync(typicalProduct);
+            typicalProduct = await _unitOfWork.TypicalProducts.AddAsync(typicalProduct);
             await _unitOfWork.CompleteAsync();
 
             return Ok(new { id = typicalProduct.Id });
@@ -133,7 +134,7 @@ namespace InteractiveAtlas.Controllers
             }
 
             //var existingTypicalProduct = await _typicalProductsRepository.GetTypicalProductByIdAsync(id).Result; Way to put a Async method without make completely the method async
-            var existingTypicalProduct = await _unitOfWork.TypicalProduct.GetTypicalProductWithProvinceByIdAsync(id);
+            var existingTypicalProduct = await _unitOfWork.TypicalProducts.GetTypicalProductWithProvinceByIdAsync(id);
             if (existingTypicalProduct == null)
             {
                 return NotFound($"El producto típico con ID {request.Id} no fue encontrado");
@@ -153,7 +154,7 @@ namespace InteractiveAtlas.Controllers
             existingTypicalProduct.ProvinceId = request.ProvinceId; // Actualizar la llave foránea
 
 
-            _unitOfWork.TypicalProduct.UpdateAsync(existingTypicalProduct).Wait();
+            _unitOfWork.TypicalProducts.UpdateAsync(existingTypicalProduct).Wait();
             await _unitOfWork.CompleteAsync();
             return NoContent();
         }
@@ -162,13 +163,13 @@ namespace InteractiveAtlas.Controllers
 
         public async Task<IActionResult> DeleteTypicalProduct(int id)
         {
-            var typicalProduct = await _unitOfWork.TypicalProduct.GetByIdAsync(id);
+            var typicalProduct = await _unitOfWork.TypicalProducts.GetByIdAsync(id);
             if (typicalProduct == null)
             {
                 return NotFound($"TypicalProduct con ID: {id} no fue encontrada");
             }
 
-            await _unitOfWork.TypicalProduct.DeleteAsync(id);
+            await _unitOfWork.TypicalProducts.DeleteAsync(id);
             await _unitOfWork.CompleteAsync();
             return NoContent();
 

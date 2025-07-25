@@ -6,6 +6,7 @@ using Azure.Core;
 using Microsoft.EntityFrameworkCore;
 using InteractiveAtlas.Infrastucture;
 using InteractiveAtlas.Infrastucture.Repositories;
+using InteractiveAtlas.Infrastucture.Contracts;
 
 namespace InteractiveAtlas.Controllers
 {
@@ -13,8 +14,8 @@ namespace InteractiveAtlas.Controllers
     [Route("api/[controller]")]
     public class ProvincesController : ControllerBase
     {
-        private readonly UnitOfWork _unitOfWork;
-        public ProvincesController(UnitOfWork unitOfWork)
+        private readonly IUnitOfWork _unitOfWork;
+        public ProvincesController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -22,7 +23,7 @@ namespace InteractiveAtlas.Controllers
         [HttpGet]
         public async Task<IActionResult> GetProvinces()
         {
-            var provinces = await _unitOfWork.Province.GetAllAsync();
+            var provinces = await _unitOfWork.Provinces.GetAllAsync();
 
             var provincesResponse = provinces.Select(p => new ProvinceDto
             {
@@ -46,7 +47,7 @@ namespace InteractiveAtlas.Controllers
         [Route("with-details")]
         public async Task<IActionResult> GetProvincesWithTypicalProducts()
         {
-            var provinces = await _unitOfWork.Province.GetAllProvincesWithDetailsAsync();
+            var provinces = await _unitOfWork.Provinces.GetAllProvincesWithDetailsAsync();
 
             var provincesResponse = provinces.Select(p => new ProvinceDto
             {
@@ -86,7 +87,7 @@ namespace InteractiveAtlas.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProvinceById(int id)
         {
-            var province = await _unitOfWork.Province.GetByIdAsync(id);
+            var province = await _unitOfWork.Provinces.GetByIdAsync(id);
 
             if (province == null)
             {
@@ -148,7 +149,7 @@ namespace InteractiveAtlas.Controllers
                 Description = request.Description
             };
 
-            province = await _unitOfWork.Province.AddAsync(province);
+            province = await _unitOfWork.Provinces.AddAsync(province);
             await _unitOfWork.CompleteAsync();
             return Ok(new { id = province.Id });
         }
@@ -176,7 +177,7 @@ namespace InteractiveAtlas.Controllers
                 return BadRequest("La región de la provincia es requerida");
             }
 
-            var existingProvince = await _unitOfWork.Province.GetByIdAsync(id);
+            var existingProvince = await _unitOfWork.Provinces.GetByIdAsync(id);
             if (existingProvince == null)
             {
                 return NotFound($"La provincia con ID {request.Id} no fue encontrada");
@@ -194,7 +195,7 @@ namespace InteractiveAtlas.Controllers
             existingProvince.ImageUrl = request.ImageUrl;
             existingProvince.Description = request.Description;
 
-            await _unitOfWork.Province.UpdateAsync(existingProvince);
+            await _unitOfWork.Provinces.UpdateAsync(existingProvince);
             await _unitOfWork.CompleteAsync();
             return NoContent();
         }
@@ -202,13 +203,13 @@ namespace InteractiveAtlas.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProvince(int id)
         {
-            var province = await _unitOfWork.Province.GetByIdAsync(id);
+            var province = await _unitOfWork.Provinces.GetByIdAsync(id);
             if (province == null)
             {
                 return NotFound($"Provincia con ID: {id} no fue encontrada");
             }
 
-            await _unitOfWork.Province.DeleteAsync(id);
+            await _unitOfWork.Provinces.DeleteAsync(id);
             await _unitOfWork.CompleteAsync();
             return NoContent();
         }

@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace InteractiveAtlas.Infrastucture.Repositories
 {
-    public class ProvinceRepository : GenericRepository<Province>, IProvinceRepository
+    public class ProvinceForzandoTheMingoRepository : GenericRepository<Province>, IProvinceRepository
     {
         private readonly InteractiveAtlasDbContext _context;
 
-        public ProvinceRepository(InteractiveAtlasDbContext context) : base(context)
+        public ProvinceForzandoTheMingoRepository(InteractiveAtlasDbContext context) : base(context)
         {
             _context = context;
         }

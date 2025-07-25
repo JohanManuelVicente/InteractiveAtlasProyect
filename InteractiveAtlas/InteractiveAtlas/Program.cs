@@ -1,4 +1,5 @@
 using InteractiveAtlas.Domain.Entities;
+using InteractiveAtlas.Infrastucture.Contracts;
 using InteractiveAtlas.Infrastucture.Data;
 using InteractiveAtlas.Infrastucture.Repositories;
 
@@ -18,12 +19,12 @@ builder.Services.AddDbContext<InteractiveAtlasDbContext>(options =>
 //create the nwe instance for each repository
 
 
-builder.Services.AddScoped<ProvinceRepository>();
-builder.Services.AddScoped<TypicalProductRepository>();
-builder.Services.AddScoped<TouristAttractionRepository>();
-builder.Services.AddScoped<QuizQuestionRepository>();
-builder.Services.AddScoped<QuizAnswerRepository>();
-builder.Services.AddScoped<UnitOfWork>();
+builder.Services.AddScoped<IProvinceRepository, ProvinceRepository>();
+builder.Services.AddScoped<ITypicalProductRepository, TypicalProductRepository>();
+builder.Services.AddScoped<ITouristAttractionRepository, TouristAttractionRepository>();
+builder.Services.AddScoped<IQuizQuestionRepository, QuizQuestionRepository>();
+builder.Services.AddScoped<IQuizAnswerRepository, QuizAnswerRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
 builder.Services.AddControllers()

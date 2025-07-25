@@ -5,6 +5,7 @@ using InteractiveAtlas.DTOs;
 using InteractiveAtlas.Infrastucture.Repositories;
 using Microsoft.EntityFrameworkCore;
 using InteractiveAtlas.Infrastucture.Data;
+using InteractiveAtlas.Infrastucture.Contracts;
 
 namespace InteractiveAtlas.Controllers
 {
@@ -12,9 +13,9 @@ namespace InteractiveAtlas.Controllers
     [Route("api/[controller]")]
     public class TouristAttractionsController : ControllerBase
     {
-        private readonly UnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public TouristAttractionsController(UnitOfWork unitOfWork)
+        public TouristAttractionsController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -22,14 +23,14 @@ namespace InteractiveAtlas.Controllers
         [HttpGet]
         public async Task<IActionResult> GetTouristAttractions()
         {
-            return Ok(await _unitOfWork.TouristAttraction.GetAllAsync());
+            return Ok(await _unitOfWork.TouristAttractions.GetAllAsync());
         }
 
         [HttpGet]
         [Route("with-province")]
         public async Task<IActionResult> GetTouristAttractionsWithProvince()
         {
-            var touristAttractions = await _unitOfWork.TouristAttraction.GetAllTouristAttractionWithProvinceAsync();
+            var touristAttractions = await _unitOfWork.TouristAttractions.GetAllTouristAttractionWithProvinceAsync();
 
             var touristAttractionsResponse = new List<TouristAttractionDto>();
             touristAttractionsResponse = touristAttractions.Select(t => new TouristAttractionDto
@@ -48,7 +49,7 @@ namespace InteractiveAtlas.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTouristAttractionById(int id)
         {
-            var touristAttraction = await _unitOfWork.TouristAttraction.GetTouristAttractionWithProvinceByIdAsync(id);
+            var touristAttraction = await _unitOfWork.TouristAttractions.GetTouristAttractionWithProvinceByIdAsync(id);
 
             if (touristAttraction == null)
             {
@@ -71,7 +72,7 @@ namespace InteractiveAtlas.Controllers
         [Route("by-province")]
         public async Task<IActionResult> GetTouristAttractionsByProvinceId([FromQuery] int provinceId)
         {
-            return Ok(await _unitOfWork.TouristAttraction.GetAllTouristAttractionByProvinceIdAsync(provinceId));
+            return Ok(await _unitOfWork.TouristAttractions.GetAllTouristAttractionByProvinceIdAsync(provinceId));
         }
 
         [HttpPost]
@@ -105,7 +106,7 @@ namespace InteractiveAtlas.Controllers
                
             };
 
-            touristAttraction = await _unitOfWork.TouristAttraction.AddAsync(touristAttraction);
+            touristAttraction = await _unitOfWork.TouristAttractions.AddAsync(touristAttraction);
             await _unitOfWork.CompleteAsync();
             return Ok(new { id = touristAttraction.Id });
         }
@@ -123,7 +124,7 @@ namespace InteractiveAtlas.Controllers
                 return BadRequest("El nombre de la atracción turística es nulo");
             }
 
-            var existingTouristAttraction = await _unitOfWork.TouristAttraction.GetTouristAttractionWithProvinceByIdAsync(id);
+            var existingTouristAttraction = await _unitOfWork.TouristAttractions.GetTouristAttractionWithProvinceByIdAsync(id);
             if (existingTouristAttraction == null)
             {
                 return NotFound($"La atracción turística con ID {request.Id} no fue encontrada");
@@ -141,7 +142,7 @@ namespace InteractiveAtlas.Controllers
             existingTouristAttraction.ImageUrl = request.ImageUrl;
             existingTouristAttraction.ProvinceId = request.ProvinceId;
 
-            _unitOfWork.TouristAttraction.UpdateAsync(existingTouristAttraction).Wait();
+            _unitOfWork.TouristAttractions.UpdateAsync(existingTouristAttraction).Wait();
             await _unitOfWork.CompleteAsync();
             return NoContent();
         }
@@ -149,13 +150,13 @@ namespace InteractiveAtlas.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTouristAttraction(int id)
         {
-            var touristAttraction = await _unitOfWork.TouristAttraction.GetByIdAsync(id);
+            var touristAttraction = await _unitOfWork.TouristAttractions.GetByIdAsync(id);
             if (touristAttraction == null)
             {
                 return NotFound($"TouristAttraction con ID: {id} no fue encontrada");
             }
 
-            await _unitOfWork.TouristAttraction.DeleteAsync(id);
+            await _unitOfWork.TouristAttractions.DeleteAsync(id);
             await _unitOfWork.CompleteAsync();
             return NoContent();
         }
