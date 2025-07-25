@@ -1,0 +1,6 @@
+@InteractiveAtlas_HostAddress = http://localhost:5017
+
+GET {{InteractiveAtlas_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
