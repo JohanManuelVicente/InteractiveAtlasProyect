@@ -1,32 +1,28 @@
-﻿using InteractiveAtlas.Domain.Entities;
-using InteractiveAtlas.DTOs;
+﻿
 using InteractiveAtlas.Infrastucture.Contracts;
-using InteractiveAtlas.Infrastucture.Data;
-using InteractiveAtlas.Infrastucture.Repositories;
-using Microsoft.AspNetCore.Mvc;
+using InteractiveAtlas.Application.DTOs;
 
-namespace InteractiveAtlas.Controllers
+namespace InteractiveAtlas.Services
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class TypicalProductsController : ControllerBase
+  
+    public class TypicalProductService
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public TypicalProductsController(IUnitOfWork unitOfWork)
+        public TypicalProductService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
-        [HttpGet]
+    
 
-        public async Task<IActionResult> GetTypicalProducts()
+        public async Task<List<TypicalProductDto>> GetTypicalProducts()
         {
 
-            return Ok(await _unitOfWork.TypicalProducts.GetAllAsync());
+            var TypicalProduct = await _unitOfWork.TypicalProducts.GetAllAsync();
+
+            return;
         }
 
-        [HttpGet]
-        [Route("with-province")]
         public async Task<IActionResult> GetTypicalProductsWithProvince()
         {
 
@@ -42,18 +38,11 @@ namespace InteractiveAtlas.Controllers
                 ImageUrl = t.ImageUrl,
                 ProvinceId = t.ProvinceId,
                 ProvinceName = t.Province.Name
-                //Province = new ProvinceDto
-                //{
-                //    Id = t.Province.Id,
-                //    Name = t.Province.Name,
-                //    Capital = t.Province.Capital
-                //}
+
 
             }).ToList();
             return Ok(typicalProductsResponse);
         }
-
-        [HttpGet("{id}")]
 
         public async Task<IActionResult> GetTypicalProductsById(int id)
         {
@@ -74,15 +63,12 @@ namespace InteractiveAtlas.Controllers
 
         }
 
-        [HttpGet]
-        [Route("by-province")]
         public async Task<IActionResult> GettypicalProductsByProvinceId([FromQuery]int provinceId)
         {
             return Ok(await _unitOfWork.TypicalProducts.GetAllTypicalProductByProvinceIdAsync(provinceId));
 
         }
 
-        [HttpPost]
 
         public async Task<IActionResult> CreateTypicalProduct([FromBody] TypicalProductDto request)
         {
@@ -120,7 +106,6 @@ namespace InteractiveAtlas.Controllers
 
         }
 
-        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTypicalProduct(int id, [FromBody] TypicalProductDto request)
         {
             if (id != request.Id)
@@ -133,33 +118,28 @@ namespace InteractiveAtlas.Controllers
                 return BadRequest("El nombre del producto típico es nulo");
             }
 
-            //var existingTypicalProduct = await _typicalProductsRepository.GetTypicalProductByIdAsync(id).Result; Way to put a Async method without make completely the method async
-            var existingTypicalProduct = await _unitOfWork.TypicalProducts.GetTypicalProductWithProvinceByIdAsync(id);
+              var existingTypicalProduct = await _unitOfWork.TypicalProducts.GetTypicalProductWithProvinceByIdAsync(id);
             if (existingTypicalProduct == null)
             {
                 return NotFound($"El producto típico con ID {request.Id} no fue encontrado");
             }
 
-            // Validar que la provincia exista (llave foránea)
             var provinceExists = _unitOfWork.Context.Provinces.Any(p => p.Id == request.ProvinceId);
             if (!provinceExists)
             {
                 return BadRequest($"La provincia con ID {request.ProvinceId} no existe");
             }
 
-            // Actualizar las propiedades
             existingTypicalProduct.Name = request.Name;
             existingTypicalProduct.Description = request.Description;
             existingTypicalProduct.ImageUrl = request.ImageUrl;
-            existingTypicalProduct.ProvinceId = request.ProvinceId; // Actualizar la llave foránea
-
+            existingTypicalProduct.ProvinceId = request.ProvinceId; 
 
             _unitOfWork.TypicalProducts.UpdateAsync(existingTypicalProduct).Wait();
             await _unitOfWork.CompleteAsync();
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
 
         public async Task<IActionResult> DeleteTypicalProduct(int id)
         {

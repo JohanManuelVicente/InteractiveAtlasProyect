@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace InteractiveAtlas.DTOs
+namespace InteractiveAtlas.Application.DTOs
 {
     public class QuizQuestionDto
     {

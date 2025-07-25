@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using InteractiveAtlas.Domain.Entities;
 using System.Xml.Linq;
-using InteractiveAtlas.DTOs;
+using InteractiveAtlas.Application.DTOs;
 using InteractiveAtlas.Infrastucture.Repositories;
 using InteractiveAtlas.Infrastucture.Data;
 using InteractiveAtlas.Infrastucture.Contracts;

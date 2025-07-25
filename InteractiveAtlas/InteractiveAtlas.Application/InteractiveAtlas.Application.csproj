@@ -6,4 +6,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Contracts\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\InteractiveAtlas.Infrastucture\InteractiveAtlas.Infrastucture.csproj" />
+  </ItemGroup>
+
 </Project>
