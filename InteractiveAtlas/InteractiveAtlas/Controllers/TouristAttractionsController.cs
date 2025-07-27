@@ -1,11 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using InteractiveAtlas.Domain.Entities;
-using System.Xml.Linq;
-using InteractiveAtlas.DTOs;
-using InteractiveAtlas.Infrastucture.Repositories;
-using Microsoft.EntityFrameworkCore;
-using InteractiveAtlas.Infrastucture.Data;
-using InteractiveAtlas.Infrastucture.Contracts;
+﻿using InteractiveAtlas.Application.Contracts;
+using InteractiveAtlas.Application.DTOs;
+using Microsoft.AspNetCore.Mvc;
 
 namespace InteractiveAtlas.Controllers
 {
@@ -13,151 +8,59 @@ namespace InteractiveAtlas.Controllers
     [Route("api/[controller]")]
     public class TouristAttractionsController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITouristAttractionService _touristAttractionService;
 
-        public TouristAttractionsController(IUnitOfWork unitOfWork)
+        public TouristAttractionsController(ITouristAttractionService touristAttractionService)
         {
-            _unitOfWork = unitOfWork;
+            _touristAttractionService = touristAttractionService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetTouristAttractions()
         {
-            return Ok(await _unitOfWork.TouristAttractions.GetAllAsync());
+            return Ok(await _touristAttractionService.GetTouristAttractions());
         }
 
         [HttpGet]
         [Route("with-province")]
         public async Task<IActionResult> GetTouristAttractionsWithProvince()
         {
-            var touristAttractions = await _unitOfWork.TouristAttractions.GetAllTouristAttractionWithProvinceAsync();
 
-            var touristAttractionsResponse = new List<TouristAttractionDto>();
-            touristAttractionsResponse = touristAttractions.Select(t => new TouristAttractionDto
-            {
-                Id = t.Id,
-                Name = t.Name,
-                Description = t.Description,
-                Location = t.Location,
-                ImageUrl = t.ImageUrl,
-                ProvinceId = t.ProvinceId,
-                ProvinceName = t.Province.Name
-            }).ToList();
-            return Ok(touristAttractionsResponse);
+            return Ok(await _touristAttractionService.GetTouristAttractionsWithProvince());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTouristAttractionById(int id)
         {
-            var touristAttraction = await _unitOfWork.TouristAttractions.GetTouristAttractionWithProvinceByIdAsync(id);
-
-            if (touristAttraction == null)
-            {
-                return BadRequest($"Tourist Attraction with ID: {id} not found");
-            }
-
-            var touristAttractionResponse = new TouristAttractionDto
-            {
-                Id = touristAttraction.Id,
-                Name = touristAttraction.Name,
-                Description = touristAttraction.Description,
-                Location = touristAttraction.Location,
-                ImageUrl = touristAttraction.ImageUrl,
-                ProvinceId = touristAttraction.ProvinceId
-            };
-            return Ok(touristAttractionResponse);
+            return Ok(await _touristAttractionService.GetTouristAttractionById(id));
         }
 
         [HttpGet]
         [Route("by-province")]
         public async Task<IActionResult> GetTouristAttractionsByProvinceId([FromQuery] int provinceId)
         {
-            return Ok(await _unitOfWork.TouristAttractions.GetAllTouristAttractionByProvinceIdAsync(provinceId));
+            return Ok(await _touristAttractionService.GetTouristAttractionsByProvinceId(provinceId));
         }
 
         [HttpPost]
-        
+
         public async Task<IActionResult> CreateTouristAttraction([FromBody] TouristAttractionDto request)
         {
-            if (request == null)
-            {
-                return BadRequest("The TouristAttraction cannot be null");
-            }
-
-            
-            var provinceExists = await _unitOfWork.Context.Provinces.AnyAsync(p => p.Id == request.ProvinceId);
-            if (!provinceExists)
-            {
-                return BadRequest($"La provincia con ID {request.ProvinceId} no existe");
-            }
-
-            if (string.IsNullOrWhiteSpace(request.Name))
-            {
-                return BadRequest("El nombre de la atracción turística es requerido");
-            }
-
-            var touristAttraction = new TouristAttraction
-            {
-                Name = request.Name,
-                Description = request.Description,
-                Location = request.Location,
-                ImageUrl = request.ImageUrl,
-                ProvinceId = request.ProvinceId
-               
-            };
-
-            touristAttraction = await _unitOfWork.TouristAttractions.AddAsync(touristAttraction);
-            await _unitOfWork.CompleteAsync();
-            return Ok(new { id = touristAttraction.Id });
+            var responseId = await _touristAttractionService.CreateTouristAttraction(request);
+            return Ok(new { id = responseId });
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTouristAttraction(int id, [FromBody] TouristAttractionDto request)
         {
-            if (id != request.Id)
-            {
-                return BadRequest("El ID de la URL no coincide con el ID de la peticion");
-            }
-
-            if (request.Name == null)
-            {
-                return BadRequest("El nombre de la atracción turística es nulo");
-            }
-
-            var existingTouristAttraction = await _unitOfWork.TouristAttractions.GetTouristAttractionWithProvinceByIdAsync(id);
-            if (existingTouristAttraction == null)
-            {
-                return NotFound($"La atracción turística con ID {request.Id} no fue encontrada");
-            }
-
-            var provinceExists = _unitOfWork.Context.Provinces.Any(p => p.Id == request.ProvinceId);
-            if (!provinceExists)
-            {
-                return BadRequest($"La provincia con ID {request.ProvinceId} no existe");
-            }
-
-            existingTouristAttraction.Name = request.Name;
-            existingTouristAttraction.Description = request.Description;
-            existingTouristAttraction.Location = request.Location;
-            existingTouristAttraction.ImageUrl = request.ImageUrl;
-            existingTouristAttraction.ProvinceId = request.ProvinceId;
-
-            _unitOfWork.TouristAttractions.UpdateAsync(existingTouristAttraction).Wait();
-            await _unitOfWork.CompleteAsync();
+            await _touristAttractionService.UpdateTouristAttraction(id, request);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTouristAttraction(int id)
         {
-            var touristAttraction = await _unitOfWork.TouristAttractions.GetByIdAsync(id);
-            if (touristAttraction == null)
-            {
-                return NotFound($"TouristAttraction con ID: {id} no fue encontrada");
-            }
-
-            await _unitOfWork.TouristAttractions.DeleteAsync(id);
-            await _unitOfWork.CompleteAsync();
+            await _touristAttractionService.DeleteTouristAttraction(id);
             return NoContent();
         }
     }

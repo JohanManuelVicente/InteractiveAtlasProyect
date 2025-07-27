@@ -4,6 +4,8 @@ using System.Xml.Linq;
 using InteractiveAtlas.Infrastucture.Repositories;
 using InteractiveAtlas.Infrastucture.Data;
 using InteractiveAtlas.Infrastucture.Contracts;
+using InteractiveAtlas.Application.DTOs;
+using InteractiveAtlas.Application.Contracts;
 
 namespace InteractiveAtlas.Controllers
 {
@@ -11,146 +13,57 @@ namespace InteractiveAtlas.Controllers
     [Route("api/[controller]")]
     public class QuizQuestionsController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IQuizQuestionService _quizQuestionService;
 
-        public QuizQuestionsController(IUnitOfWork unitOfWork)
+        public QuizQuestionsController(IQuizQuestionService quizQuestionService)
         {
-            _unitOfWork = unitOfWork;
+           _quizQuestionService = quizQuestionService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetQuizQuestions()
         {
-            return Ok(await _unitOfWork.QuizQuestions.GetAllAsync());
+            return Ok(await _quizQuestionService.GetQuizQuestions());
         }
 
         [HttpGet]
         [Route("with-province")]
         public async Task<IActionResult> GetQuizQuestionsWithProvince()
         {
-            var quizQuestions = await _unitOfWork.QuizQuestions.GetAllQuizQuestionWithProvinceAsync();
-
-            var quizQuestionsResponse = new List<QuizQuestionDto>();
-            quizQuestionsResponse = quizQuestions.Select(q => new QuizQuestionDto
-            {
-                Id = q.Id,
-                Text = q.Text,
-                DifficultyLevel = q.DifficultyLevel,
-                ProvinceId = q.ProvinceId,
-                ProvinceName = q.Province?.Name
-            }).ToList();
-            return Ok(quizQuestionsResponse);
+            return Ok(await _quizQuestionService.GetQuizQuestionsWithProvince());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetQuizQuestionById(int id)
         {
-            var quizQuestion = await _unitOfWork.QuizQuestions.GetQuizQuestionWithProvinceByIdAsync(id);
-
-            if (quizQuestion == null)
-            {
-                return BadRequest($"Quiz Question with ID: {id} not found");
-            }
-
-            var quizQuestionResponse = new QuizQuestionDto
-            {
-                Id = quizQuestion.Id,
-                Text = quizQuestion.Text,
-                DifficultyLevel = quizQuestion.DifficultyLevel,
-                ProvinceId = quizQuestion.ProvinceId
-            };
-            return Ok(quizQuestionResponse);
+            return Ok(await _quizQuestionService.GetQuizQuestionById(id));
         }
 
         [HttpGet]
         [Route("by-province")]
         public async Task<IActionResult> GetQuizQuestionsByProvinceId([FromQuery] int provinceId)
         {
-            return Ok(await _unitOfWork.QuizQuestions.GetAllQuizQuestionByProvinceIdAsync(provinceId));
+            return Ok(await _quizQuestionService.GetQuizQuestionsByProvinceId(provinceId));
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateQuizQuestion([FromBody] QuizQuestionDto request)
         {
-            if (request == null)
-            {
-                return BadRequest("The QuizQuestion cannot be null");
-            }
-
-            if (request.ProvinceId.HasValue)
-            {
-                var provinceExists = _unitOfWork.Context.Provinces.Any(p => p.Id == request.ProvinceId.Value);
-                if (!provinceExists)
-                {
-                    return BadRequest($"La provincia con ID {request.ProvinceId} no existe");
-                }
-            }
-
-            if (string.IsNullOrWhiteSpace(request.Text))
-            {
-                return BadRequest("El texto de la pregunta es requerido");
-            }
-
-            var quizQuestion = new QuizQuestion
-            {
-                Text = request.Text,
-                DifficultyLevel = request.DifficultyLevel,
-                ProvinceId = request.ProvinceId,
-            };
-
-            quizQuestion = await _unitOfWork.QuizQuestions.AddAsync(quizQuestion);
-            await _unitOfWork.CompleteAsync();
-            return Ok(new { id = quizQuestion.Id });
+            var responseId = await _quizQuestionService.CreateQuizQuestion(request);
+            return Ok(new { id = responseId });
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateQuizQuestion(int id, [FromBody] QuizQuestionDto request)
         {
-            if (id != request.Id)
-            {
-                return BadRequest("El ID de la URL no coincide con el ID de la peticion");
-            }
-
-            if (request.Text == null)
-            {
-                return BadRequest("El texto de la pregunta es nulo");
-            }
-
-            var existingQuizQuestion = await _unitOfWork.QuizQuestions.GetQuizQuestionWithProvinceByIdAsync(id);
-            if (existingQuizQuestion == null)
-            {
-                return NotFound($"La pregunta con ID {request.Id} no fue encontrada");
-            }
-
-            if (request.ProvinceId.HasValue)
-            {
-                var provinceExists = _unitOfWork.Context.Provinces.Any(p => p.Id == request.ProvinceId.Value);
-                if (!provinceExists)
-                {
-                    return BadRequest($"La provincia con ID {request.ProvinceId} no existe");
-                }
-            }
-
-            existingQuizQuestion.Text = request.Text;
-            existingQuizQuestion.DifficultyLevel = request.DifficultyLevel;
-            existingQuizQuestion.ProvinceId = request.ProvinceId;
-
-            _unitOfWork.QuizQuestions.UpdateAsync(existingQuizQuestion).Wait();
-            await _unitOfWork.CompleteAsync();
+            await _quizQuestionService.UpdateQuizQuestion(id, request);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteQuizQuestion(int id)
         {
-            var quizQuestion = await _unitOfWork.QuizQuestions.GetByIdAsync(id);
-            if (quizQuestion == null)
-            {
-                return NotFound($"QuizQuestion con ID: {id} no fue encontrada");
-            }
-
-            await _unitOfWork.QuizQuestions.DeleteAsync(id);
-            await _unitOfWork.CompleteAsync();
+           await _quizQuestionService.DeleteQuizQuestion(id);
             return NoContent();
         }
     }

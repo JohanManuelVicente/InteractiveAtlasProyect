@@ -1,8 +1,9 @@
+using InteractiveAtlas.Application.Contracts;
 using InteractiveAtlas.Domain.Entities;
 using InteractiveAtlas.Infrastucture.Contracts;
 using InteractiveAtlas.Infrastucture.Data;
 using InteractiveAtlas.Infrastucture.Repositories;
-
+using InteractiveAtlas.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -25,6 +26,13 @@ builder.Services.AddScoped<ITouristAttractionRepository, TouristAttractionReposi
 builder.Services.AddScoped<IQuizQuestionRepository, QuizQuestionRepository>();
 builder.Services.AddScoped<IQuizAnswerRepository, QuizAnswerRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddScoped<IProvinceService, ProvinceService>();
+builder.Services.AddScoped<ITypicalProductService, TypicalProductService>();
+builder.Services.AddScoped<IQuizAnswerService, QuizAnswerService>();
+builder.Services.AddScoped<IQuizQuestionService, QuizQuestionService>();
+builder.Services.AddScoped<ITouristAttractionService, TouristAttractionService>();
+
 
 
 builder.Services.AddControllers()
