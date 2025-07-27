@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\InteractiveAtlas.Infrastucture\InteractiveAtlas.Infrastucture.csproj" />
+    <ProjectReference Include="..\InteractiveAtlas.Application\InteractiveAtlas.Application.csproj" />
   </ItemGroup>
 
 </Project>
