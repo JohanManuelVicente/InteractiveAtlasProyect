@@ -2,10 +2,11 @@
 using InteractiveAtlas.Infrastucture.Contracts;
 using InteractiveAtlas.Application.DTOs;
 using InteractiveAtlas.Domain.Entities;
+using InteractiveAtlas.Application.Contracts;
 
 namespace InteractiveAtlas.Services
 {
-    public class ProvinceService
+    public class ProvinceService : IProvinceService
     {
         private readonly IUnitOfWork _unitOfWork;
 

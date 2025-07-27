@@ -2,10 +2,11 @@
 using InteractiveAtlas.Infrastucture.Contracts;
 using InteractiveAtlas.Application.DTOs;
 using InteractiveAtlas.Domain.Entities;
+using InteractiveAtlas.Application.Contracts;
 
 namespace InteractiveAtlas.Services
 {
-    public class QuizAnswerService
+    public class QuizAnswerService : IQuizAnswerService
     {
         private readonly IUnitOfWork _unitOfWork;
 

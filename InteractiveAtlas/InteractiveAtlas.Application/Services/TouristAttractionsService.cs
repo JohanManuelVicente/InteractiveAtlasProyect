@@ -4,10 +4,11 @@ using InteractiveAtlas.Domain.Entities;
 using InteractiveAtlas.Infrastucture.Contracts;
 using InteractiveAtlas.Application.DTOs;
 using Microsoft.EntityFrameworkCore;
+using InteractiveAtlas.Application.Contracts;
 
 namespace InteractiveAtlas.Services
 {
-    public class TouristAttractionService
+    public class TouristAttractionService : ITouristAttractionService
     {
         private readonly IUnitOfWork _unitOfWork;
 

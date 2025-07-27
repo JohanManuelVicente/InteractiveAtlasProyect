@@ -2,11 +2,12 @@
 using InteractiveAtlas.Infrastucture.Contracts;
 using InteractiveAtlas.Application.DTOs;
 using InteractiveAtlas.Domain.Entities;
+using InteractiveAtlas.Application.Contracts;
 
 namespace InteractiveAtlas.Services
 {
-  
-    public class TypicalProductService
+
+    public class TypicalProductService : ITypicalProductService
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -14,7 +15,7 @@ namespace InteractiveAtlas.Services
         {
             _unitOfWork = unitOfWork;
         }
-    
+
 
         public async Task<List<TypicalProductDto>> GetTypicalProducts()
         {
@@ -58,7 +59,7 @@ namespace InteractiveAtlas.Services
             var typicalProduct = await _unitOfWork.TypicalProducts.GetTypicalProductWithProvinceByIdAsync(id);
 
             if (typicalProduct == null)
-            {throw new Exception($"Typical Product with ID: {id} not found") ; }
+            { throw new Exception($"Typical Product with ID: {id} not found"); }
 
             var typicalProductResponse = new TypicalProductDto
             {
@@ -91,17 +92,17 @@ namespace InteractiveAtlas.Services
         }
 
 
-        public async Task<int> CreateTypicalProduct( TypicalProductDto request)
+        public async Task<int> CreateTypicalProduct(TypicalProductDto request)
         {
             if (request == null)
             {
-                throw new Exception ("The TypicalProduct cannot be null");
+                throw new Exception("The TypicalProduct cannot be null");
             }
 
             var provinceExists = _unitOfWork.Context.Provinces.Any(p => p.Id == request.ProvinceId);
             if (!provinceExists)
             {
-                throw new Exception ( $"La provincia con ID {request.ProvinceId} no existe");
+                throw new Exception($"La provincia con ID {request.ProvinceId} no existe");
             }
 
             if (string.IsNullOrWhiteSpace(request.Name))
@@ -131,30 +132,30 @@ namespace InteractiveAtlas.Services
         {
             if (id != request.Id)
             {
-                throw new Exception ("El ID de la URL no coincide con el ID de la peticion");
+                throw new Exception("El ID de la URL no coincide con el ID de la peticion");
             }
 
             if (request.Name == null)
             {
-                throw new Exception ("El nombre del producto típico es nulo");
+                throw new Exception("El nombre del producto típico es nulo");
             }
 
-              var existingTypicalProduct = await _unitOfWork.TypicalProducts.GetTypicalProductWithProvinceByIdAsync(id);
+            var existingTypicalProduct = await _unitOfWork.TypicalProducts.GetTypicalProductWithProvinceByIdAsync(id);
             if (existingTypicalProduct == null)
             {
-                throw new Exception ($"El producto típico con ID {request.Id} no fue encontrado");
+                throw new Exception($"El producto típico con ID {request.Id} no fue encontrado");
             }
 
             var provinceExists = _unitOfWork.Context.Provinces.Any(p => p.Id == request.ProvinceId);
             if (!provinceExists)
             {
-                throw new Exception ($"La provincia con ID {request.ProvinceId} no existe");
+                throw new Exception($"La provincia con ID {request.ProvinceId} no existe");
             }
 
             existingTypicalProduct.Name = request.Name;
             existingTypicalProduct.Description = request.Description;
             existingTypicalProduct.ImageUrl = request.ImageUrl;
-            existingTypicalProduct.ProvinceId = request.ProvinceId; 
+            existingTypicalProduct.ProvinceId = request.ProvinceId;
 
             _unitOfWork.TypicalProducts.UpdateAsync(existingTypicalProduct).Wait();
             await _unitOfWork.CompleteAsync();
@@ -166,7 +167,7 @@ namespace InteractiveAtlas.Services
             var typicalProduct = await _unitOfWork.TypicalProducts.GetByIdAsync(id);
             if (typicalProduct == null)
             {
-                throw new Exception ($"TypicalProduct con ID: {id} no fue encontrada");
+                throw new Exception($"TypicalProduct con ID: {id} no fue encontrada");
             }
 
             await _unitOfWork.TypicalProducts.DeleteAsync(id);

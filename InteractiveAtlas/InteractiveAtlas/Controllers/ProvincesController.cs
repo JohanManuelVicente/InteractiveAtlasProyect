@@ -13,10 +13,10 @@ namespace InteractiveAtlas.Controllers
     [Route("api/[controller]")]
     public class ProvincesController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
-        public ProvincesController(IUnitOfWork unitOfWork)
+       // private readonly IUnitOfWork _unitOfWork;
+        public ProvincesController(/*IUnitOfWork unitOfWork*/)
         {
-            _unitOfWork = unitOfWork;
+           // _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
