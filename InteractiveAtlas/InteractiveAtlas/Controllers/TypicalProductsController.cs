@@ -42,12 +42,7 @@ namespace InteractiveAtlas.Controllers
                 ImageUrl = t.ImageUrl,
                 ProvinceId = t.ProvinceId,
                 ProvinceName = t.Province.Name
-                //Province = new ProvinceDto
-                //{
-                //    Id = t.Province.Id,
-                //    Name = t.Province.Name,
-                //    Capital = t.Province.Capital
-                //}
+
 
             }).ToList();
             return Ok(typicalProductsResponse);

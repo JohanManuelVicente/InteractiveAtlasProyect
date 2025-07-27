@@ -1,26 +1,20 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using InteractiveAtlas.Domain.Entities;
-using System.Xml.Linq;
-using Azure.Core;
-using Microsoft.EntityFrameworkCore;
-using InteractiveAtlas.Infrastucture;
-using InteractiveAtlas.Infrastucture.Repositories;
+﻿
 using InteractiveAtlas.Infrastucture.Contracts;
+using InteractiveAtlas.Application.DTOs;
+using InteractiveAtlas.Domain.Entities;
 
-namespace InteractiveAtlas.Controllers
+namespace InteractiveAtlas.Services
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class ProvincesController : ControllerBase
+    public class ProvinceService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public ProvincesController(IUnitOfWork unitOfWork)
+
+        public ProvinceService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetProvinces()
+        public async Task<List<ProvinceDto>> GetProvinces()
         {
             var provinces = await _unitOfWork.Provinces.GetAllAsync();
 
@@ -39,12 +33,10 @@ namespace InteractiveAtlas.Controllers
                 Description = p.Description
             }).ToList();
 
-            return Ok(provincesResponse);
+            return provincesResponse;
         }
 
-        [HttpGet]
-        [Route("with-details")]
-        public async Task<IActionResult> GetProvincesWithTypicalProducts()
+        public async Task<List<ProvinceDto>> GetProvincesWithTypicalProducts()
         {
             var provinces = await _unitOfWork.Provinces.GetAllProvincesWithDetailsAsync();
 
@@ -80,17 +72,16 @@ namespace InteractiveAtlas.Controllers
 
             }).ToList();
 
-            return Ok(provincesResponse);
+            return provincesResponse;
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetProvinceById(int id)
+        public async Task<ProvinceDto> GetProvinceById(int id)
         {
             var province = await _unitOfWork.Provinces.GetByIdAsync(id);
 
             if (province == null)
             {
-                return BadRequest($"Province with ID: {id} not found");
+                throw new Exception($"Province with ID: {id} not found");
             }
 
             var provinceResponse = new ProvinceDto
@@ -108,30 +99,29 @@ namespace InteractiveAtlas.Controllers
                 Description = province.Description
             };
 
-            return Ok(provinceResponse);
+            return provinceResponse;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateProvince([FromBody] ProvinceDto request)
+        public async Task<int> CreateProvince(ProvinceDto request)
         {
             if (request == null)
             {
-                return BadRequest("The Province cannot be null");
+                throw new Exception("The Province cannot be null");
             }
 
             if (string.IsNullOrWhiteSpace(request.Name))
             {
-                return BadRequest("El nombre de la provincia es requerido");
+                throw new Exception("El nombre de la provincia es requerido");
             }
 
             if (string.IsNullOrWhiteSpace(request.Capital))
             {
-                return BadRequest("La capital de la provincia es requerida");
+                throw new Exception("La capital de la provincia es requerida");
             }
 
             if (string.IsNullOrWhiteSpace(request.Region))
             {
-                return BadRequest("La región de la provincia es requerida");
+                throw new Exception("La región de la provincia es requerida");
             }
 
             var province = new Province
@@ -150,39 +140,38 @@ namespace InteractiveAtlas.Controllers
 
             province = await _unitOfWork.Provinces.AddAsync(province);
             await _unitOfWork.CompleteAsync();
-            return Ok(new { id = province.Id });
+
+            return province.Id;
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProvince(int id, [FromBody] ProvinceDto request)
+        public async Task UpdateProvince(int id, ProvinceDto request)
         {
             if (id != request.Id)
             {
-                return BadRequest("El ID de la URL no coincide con el ID de la petición");
+                throw new Exception("El ID de la URL no coincide con el ID de la petición");
             }
 
             if (string.IsNullOrWhiteSpace(request.Name))
             {
-                return BadRequest("El nombre de la provincia es requerido");
+                throw new Exception("El nombre de la provincia es requerido");
             }
 
             if (string.IsNullOrWhiteSpace(request.Capital))
             {
-                return BadRequest("La capital de la provincia es requerida");
+                throw new Exception("La capital de la provincia es requerida");
             }
 
             if (string.IsNullOrWhiteSpace(request.Region))
             {
-                return BadRequest("La región de la provincia es requerida");
+                throw new Exception("La región de la provincia es requerida");
             }
 
             var existingProvince = await _unitOfWork.Provinces.GetByIdAsync(id);
             if (existingProvince == null)
             {
-                return NotFound($"La provincia con ID {request.Id} no fue encontrada");
+                throw new Exception($"La provincia con ID {request.Id} no fue encontrada");
             }
 
-            // Actualizar propiedades
             existingProvince.Name = request.Name;
             existingProvince.Capital = request.Capital;
             existingProvince.AreaKm2 = request.AreaKm2;
@@ -196,21 +185,18 @@ namespace InteractiveAtlas.Controllers
 
             await _unitOfWork.Provinces.UpdateAsync(existingProvince);
             await _unitOfWork.CompleteAsync();
-            return NoContent();
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProvince(int id)
+        public async Task DeleteProvince(int id)
         {
             var province = await _unitOfWork.Provinces.GetByIdAsync(id);
             if (province == null)
             {
-                return NotFound($"Provincia con ID: {id} no fue encontrada");
+                throw new Exception($"Provincia con ID: {id} no fue encontrada");
             }
 
             await _unitOfWork.Provinces.DeleteAsync(id);
             await _unitOfWork.CompleteAsync();
-            return NoContent();
         }
     }
 }

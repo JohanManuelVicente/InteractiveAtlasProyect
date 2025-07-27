@@ -1,6 +1,7 @@
 ﻿
 using InteractiveAtlas.Infrastucture.Contracts;
 using InteractiveAtlas.Application.DTOs;
+using InteractiveAtlas.Domain.Entities;
 
 namespace InteractiveAtlas.Services
 {
@@ -18,19 +19,27 @@ namespace InteractiveAtlas.Services
         public async Task<List<TypicalProductDto>> GetTypicalProducts()
         {
 
-            var TypicalProduct = await _unitOfWork.TypicalProducts.GetAllAsync();
+            var TypicalProducts = await _unitOfWork.TypicalProducts.GetAllAsync();
 
-            returns;
+            var TypicalProductsList = TypicalProducts.Select(t => new TypicalProductDto
+            {
+                Id = t.Id,
+                Name = t.Name,
+                Description = t.Description,
+                ProvinceId = t.ProvinceId,
+
+            }).ToList();
+            return TypicalProductsList;
         }
 
-        public async Task<IActionResult> GetTypicalProductsWithProvince()
+        public async Task<List<TypicalProductDto>> GetTypicalProductsWithProvince()
         {
 
-            var typicalProducts = await _unitOfWork.TypicalProducts.GetAllTypicalProductWithProvinceAsync();
+            var TypicalProducts = await _unitOfWork.TypicalProducts.GetAllTypicalProductWithProvinceAsync();
 
 
-            var typicalProductsResponse = new List<TypicalProductDto>();
-            typicalProductsResponse = typicalProducts.Select(t => new TypicalProductDto
+            var TypicalProductsResponse = new List<TypicalProductDto>();
+            TypicalProductsResponse = TypicalProducts.Select(t => new TypicalProductDto
             {
                 Id = t.Id,
                 Name = t.Name,
@@ -41,15 +50,15 @@ namespace InteractiveAtlas.Services
 
 
             }).ToList();
-            return Ok(typicalProductsResponse);
+            return TypicalProductsResponse;
         }
 
-        public async Task<IActionResult> GetTypicalProductsById(int id)
+        public async Task<TypicalProductDto> GetTypicalProductsById(int id)
         {
             var typicalProduct = await _unitOfWork.TypicalProducts.GetTypicalProductWithProvinceByIdAsync(id);
 
             if (typicalProduct == null)
-            { return BadRequest($"Typical Product with ID: {id} not found"); }
+            {throw new Exception($"Typical Product with ID: {id} not found") ; }
 
             var typicalProductResponse = new TypicalProductDto
             {
@@ -59,33 +68,45 @@ namespace InteractiveAtlas.Services
                 ImageUrl = typicalProduct.ImageUrl,
                 ProvinceId = typicalProduct.ProvinceId
             };
-            return Ok(typicalProductResponse);
+            return typicalProductResponse;
 
         }
 
-        public async Task<IActionResult> GettypicalProductsByProvinceId([FromQuery]int provinceId)
+        public async Task<List<TypicalProductDto>> GettypicalProductsByProvinceId(int provinceId)
         {
-            return Ok(await _unitOfWork.TypicalProducts.GetAllTypicalProductByProvinceIdAsync(provinceId));
+            var TypicalProducts = await _unitOfWork.TypicalProducts.GetAllTypicalProductByProvinceIdAsync(provinceId);
+
+            var TypicalProductsList = TypicalProducts.Select(t => new TypicalProductDto
+            {
+                Id = t.Id,
+                Name = t.Name,
+                Description = t.Description,
+                ProvinceId = t.ProvinceId,
+
+            }).ToList();
+
+
+            return TypicalProductsList;
 
         }
 
 
-        public async Task<IActionResult> CreateTypicalProduct([FromBody] TypicalProductDto request)
+        public async Task<int> CreateTypicalProduct( TypicalProductDto request)
         {
             if (request == null)
             {
-                return BadRequest("The TypicalProduct cannot be null");
+                throw new Exception ("The TypicalProduct cannot be null");
             }
 
             var provinceExists = _unitOfWork.Context.Provinces.Any(p => p.Id == request.ProvinceId);
             if (!provinceExists)
             {
-                return BadRequest($"La provincia con ID {request.ProvinceId} no existe");
+                throw new Exception ( $"La provincia con ID {request.ProvinceId} no existe");
             }
 
             if (string.IsNullOrWhiteSpace(request.Name))
             {
-                return BadRequest("El nombre del producto típico es requerido");
+                throw new Exception("El nombre del producto típico es requerido");
             }
 
             var typicalProduct = new TypicalProduct
@@ -102,32 +123,32 @@ namespace InteractiveAtlas.Services
             typicalProduct = await _unitOfWork.TypicalProducts.AddAsync(typicalProduct);
             await _unitOfWork.CompleteAsync();
 
-            return Ok(new { id = typicalProduct.Id });
+            return typicalProduct.Id;
 
         }
 
-        public async Task<IActionResult> UpdateTypicalProduct(int id, [FromBody] TypicalProductDto request)
+        public async Task UpdateTypicalProduct(int id, TypicalProductDto request)
         {
             if (id != request.Id)
             {
-                return BadRequest("El ID de la URL no coincide con el ID de la peticion");
+                throw new Exception ("El ID de la URL no coincide con el ID de la peticion");
             }
 
             if (request.Name == null)
             {
-                return BadRequest("El nombre del producto típico es nulo");
+                throw new Exception ("El nombre del producto típico es nulo");
             }
 
               var existingTypicalProduct = await _unitOfWork.TypicalProducts.GetTypicalProductWithProvinceByIdAsync(id);
             if (existingTypicalProduct == null)
             {
-                return NotFound($"El producto típico con ID {request.Id} no fue encontrado");
+                throw new Exception ($"El producto típico con ID {request.Id} no fue encontrado");
             }
 
             var provinceExists = _unitOfWork.Context.Provinces.Any(p => p.Id == request.ProvinceId);
             if (!provinceExists)
             {
-                return BadRequest($"La provincia con ID {request.ProvinceId} no existe");
+                throw new Exception ($"La provincia con ID {request.ProvinceId} no existe");
             }
 
             existingTypicalProduct.Name = request.Name;
@@ -137,23 +158,19 @@ namespace InteractiveAtlas.Services
 
             _unitOfWork.TypicalProducts.UpdateAsync(existingTypicalProduct).Wait();
             await _unitOfWork.CompleteAsync();
-            return NoContent();
         }
 
 
-        public async Task<IActionResult> DeleteTypicalProduct(int id)
+        public async Task DeleteTypicalProduct(int id)
         {
             var typicalProduct = await _unitOfWork.TypicalProducts.GetByIdAsync(id);
             if (typicalProduct == null)
             {
-                return NotFound($"TypicalProduct con ID: {id} no fue encontrada");
+                throw new Exception ($"TypicalProduct con ID: {id} no fue encontrada");
             }
 
             await _unitOfWork.TypicalProducts.DeleteAsync(id);
             await _unitOfWork.CompleteAsync();
-            return NoContent();
-
-
         }
     }
 }
