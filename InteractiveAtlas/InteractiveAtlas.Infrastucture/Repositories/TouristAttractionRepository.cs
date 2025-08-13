@@ -17,10 +17,7 @@ namespace InteractiveAtlas.Infrastucture.Repositories
         {
             _context = context;
         }
-        //public async Task<List<TouristAttraction>> GetAllTouristAttractionAsync()
-        //{
-        //    return await _context.TouristAttractions.ToListAsync();
-        //}
+
         public async Task<List<TouristAttraction>> GetAllTouristAttractionByProvinceIdAsync(int provinceId)
         {
             return await _context.TouristAttractions.Where(t => t.ProvinceId == provinceId).ToListAsync();
@@ -37,25 +34,6 @@ namespace InteractiveAtlas.Infrastucture.Repositories
         .Include(t => t.Province)
         .FirstOrDefaultAsync(t => t.Id == id);
         }
-        //public async Task<TouristAttraction> AddTouristAttractionAsync(TouristAttraction touristattraction)
-        //{
-        //    _context.TouristAttractions.Add(touristattraction);
-        //    return touristattraction;
-        //}
-        //public async Task<TouristAttraction> UpdateTouristAttractionAsync(TouristAttraction touristattraction)
-        //{
-        //    _context.TouristAttractions.Update(touristattraction);
-        //    return touristattraction;
-        //}
-        //public async Task<bool> DeleteTouristAttractionAsync(int id)
-        //{
-        //    var touristattraction = await _context.TouristAttractions.FindAsync(id);
-        //    if (touristattraction == null)
-        //    {
-        //        return false;
-        //    }
-        //    _context.TouristAttractions.Remove(touristattraction);
-        //    return true;
-        //}
+
     }
 }
