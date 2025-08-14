@@ -1,4 +1,4 @@
-// Configuración de la API
+
 const API_BASE_URL = 'https://localhost:7193/api';
 
 // Variables globales
@@ -26,9 +26,6 @@ let quizData = {
     provinceId: null
 };
 
-// ================================
-// FUNCIONES DE UTILIDAD
-// ================================
 
 function showLoading() {
     console.log('Cargando datos...');
@@ -83,9 +80,6 @@ function formatNumber(number) {
     return new Intl.NumberFormat('es-DO').format(number);
 }
 
-// ================================
-// FUNCIONES DEL QUIZ - UTILIDADES
-// ================================
 
 function shuffleArray(array) {
     const shuffled = [...array];
@@ -113,16 +107,13 @@ function getScoreColor(score, total) {
     return 'danger';
 }
 
-// ================================
-// FUNCIONES DEL QUIZ - API
-// ================================
 
 async function fetchQuizQuestions(difficulty = null, provinceId = null) {
     try {
         let url = `${API_BASE_URL}/QuizQuestions`;
         const params = new URLSearchParams();
         
-        // Solo agregar parámetros si tienen valor
+      
         if (difficulty && difficulty !== '') {
             params.append('difficulty', difficulty);
         }
@@ -142,7 +133,7 @@ async function fetchQuizQuestions(difficulty = null, provinceId = null) {
         
         console.log('Questions received:', questions.length); // Debug
         
-        // Filtrar por dificultad en el frontend si no funcionó en el backend
+       
         let filteredQuestions = questions;
         if (difficulty && difficulty !== '') {
             filteredQuestions = questions.filter(q => q.difficultyLevel === difficulty);
@@ -153,7 +144,7 @@ async function fetchQuizQuestions(difficulty = null, provinceId = null) {
         
         console.log('Filtered questions:', filteredQuestions.length); // Debug
         
-        // Mezclar y limitar a 10 preguntas
+      
         const shuffled = shuffleArray(filteredQuestions);
         const limited = shuffled.slice(0, 10);
         
@@ -199,9 +190,6 @@ async function deleteAttraction(id) {
     }
 }
 
-// ================================
-// FUNCIONES DE API - PRODUCTOS ADMIN
-// ================================
 
 async function fetchProducts() {
     try {
@@ -263,9 +251,6 @@ async function deleteProduct(id) {
     }
 }
 
-// ================================
-// FUNCIONES DE CARGA - MODO PÚBLICO
-// ================================
 
 async function loadProvinces() {
     try {
@@ -284,7 +269,7 @@ async function loadProvinces() {
             if (mapContent) mapContent.style.display = 'block';
         }
         
-        // Poblar select del quiz
+        
         await populateQuizProvinceSelect();
         
     } catch (error) {
@@ -333,9 +318,6 @@ function updateFunFacts() {
     }
 }
 
-// ================================
-// FUNCIONES DE CARGA - MODO ADMIN
-// ================================
 
 async function loadQuestionsForAdmin() {
     try {
@@ -574,9 +556,6 @@ function displayProductsTable() {
     });
 }
 
-// ================================
-// FUNCIONES DE SELECCIÓN - MODO PÚBLICO
-// ================================
 
 async function selectProvince(provinceId) {
     if (!provinceId) {
@@ -697,9 +676,7 @@ function resetProvinceSelection() {
     if (provinceDetailsContainer) provinceDetailsContainer.style.display = 'none';
 }
 
-// ================================
-// FUNCIONES DE MODAL - ADMIN QUIZ
-// ================================
+
 
 function openQuestionModal(questionId = null) {
     const modal = new bootstrap.Modal(document.getElementById('questionModal'));
@@ -721,7 +698,7 @@ function openQuestionModal(questionId = null) {
 }
 
 async function saveProduct() {
-    console.log('🟡 Iniciando saveProduct');
+    console.log('Iniciando saveProduct');
     
     const id = document.getElementById('productId').value;
     const name = document.getElementById('productName').value.trim();
@@ -739,22 +716,22 @@ async function saveProduct() {
         provinceId: parseInt(provinceId)
     };
     
-    console.log('🟡 Datos a enviar:', productData);
+    console.log('Datos a enviar:', productData);
     
     let success = false;
     if (id) {
         productData.id = parseInt(id);
-        console.log('🟡 Actualizando producto...');
+        console.log('Actualizando producto...');
         success = await updateProduct(productData);
     } else {
-        console.log('🟡 Creando producto...');
+        console.log('Creando producto...');
         success = await createProduct(productData);
     }
     
-    console.log('🟡 Resultado:', success);
+    console.log('Resultado:', success);
     
     if (success) {
-        console.log('🟡 Cerrando modal...');
+        console.log('Cerrando modal...');
         
         const modalElement = document.getElementById('productModal');
         const modal = bootstrap.Modal.getInstance(modalElement);
@@ -763,15 +740,15 @@ async function saveProduct() {
             modal.hide();
         }
         
-        // SOLUCIÓN MEJORADA: Restaurar scroll inmediatamente
+     
         setTimeout(() => {
-            // Remover backdrop
+            
             const backdrop = document.querySelector('.modal-backdrop');
             if (backdrop) {
                 backdrop.remove();
             }
             
-            // FORZAR restauración del scroll
+          
             document.body.classList.remove('modal-open');
             document.body.style.overflow = 'auto';  // Forzar scroll
             document.body.style.paddingRight = '0px';
@@ -780,8 +757,8 @@ async function saveProduct() {
             // Asegurar que el html también tenga scroll
             document.documentElement.style.overflow = 'auto';
             
-            console.log('🟡 Scroll restaurado');
-        }, 100); // Reducir tiempo a 100ms
+            console.log('Scroll restaurado');
+        }, 100); 
     }
 }
 
@@ -890,47 +867,44 @@ function setupEventListeners() {
         saveProductBtn.addEventListener('click', saveProduct);
     }
     
-    // Configurar event listeners del quiz
+   
     setupQuizEventListeners();
     setupCancelButtons();
 }
 
-// Nueva función para manejar botones de cancelar
+
 function setupCancelButtons() {
-    // Botones de cancelar que cierran modales
+    
     const cancelButtons = [
         { buttonId: 'cancelQuizConfig', modalId: 'quizConfigModal' },
-        // Agrega los selectores de los botones cancelar de cada modal
+       
     ];
     
-    // Buscar todos los botones con data-bs-dismiss="modal"
+  
     const dismissButtons = document.querySelectorAll('[data-bs-dismiss="modal"]');
     
     dismissButtons.forEach(button => {
         button.addEventListener('click', function() {
-            // Esperar un poco para que Bootstrap procese el cierre
             setTimeout(() => {
-                // Limpiar todo manualmente
                 const backdrop = document.querySelector('.modal-backdrop');
                 if (backdrop) {
                     backdrop.remove();
                 }
                 
-                // Restaurar scroll
+             
                 document.body.classList.remove('modal-open');
                 document.body.style.overflow = 'auto';
                 document.body.style.paddingRight = '0px';
                 document.body.style.position = '';
                 document.documentElement.style.overflow = 'auto';
                 
-                console.log('🔄 Modal cancelado - scroll restaurado');
+                console.log('Modal cancelado - scroll restaurado');
             }, 150);
         });
     });
 }
 
 function setupQuizEventListeners() {
-    // Botones de configuración del quiz
     const startQuizFromConfigBtn = document.getElementById('startQuizFromConfig');
     const cancelQuizConfigBtn = document.getElementById('cancelQuizConfig');
     
@@ -967,7 +941,6 @@ function setupSearchFunctionality() {
     const modalSearchInput = document.getElementById('modalSearchInput');
     const regionFilter = document.getElementById('regionFilter');
     
-    // Búsqueda en tiempo real
     if (searchInput) {
         searchInput.addEventListener('input', function() {
             const searchTerm = this.value.toLowerCase();
@@ -975,7 +948,6 @@ function setupSearchFunctionality() {
         });
     }
     
-    // Búsqueda en modal
     if (modalSearchInput) {
         modalSearchInput.addEventListener('input', function() {
             const searchTerm = this.value.toLowerCase();
@@ -984,7 +956,6 @@ function setupSearchFunctionality() {
         });
     }
     
-    // Filtro de región
     if (regionFilter) {
         regionFilter.addEventListener('change', function() {
             const searchTerm = document.getElementById('modalSearchInput')?.value.toLowerCase() || '';
@@ -992,7 +963,6 @@ function setupSearchFunctionality() {
         });
     }
     
-    // Configurar filtros de admin
     setupAdminFilters();
 }
 
@@ -1028,7 +998,7 @@ window.exitQuiz = exitQuiz;
 
 async function initializeApp() {
     try {
-        console.log('🚀 Inicializando Atlas Dominicano...');
+        console.log('Inicializando Atlas Dominicano...');
         
         // Configurar event listeners
         setupEventListeners();
@@ -1037,10 +1007,10 @@ async function initializeApp() {
         // Cargar datos iniciales del modo público
         await loadProvinces();
         
-        console.log('✅ Atlas Dominicano inicializado correctamente');
+        console.log('Atlas Dominicano inicializado correctamente');
         
     } catch (error) {
-        console.error('❌ Error al inicializar la aplicación:', error);
+        console.error('Error al inicializar la aplicación:', error);
         showError('Error al inicializar la aplicación. Por favor, recarga la página.');
     }
 }
@@ -1105,21 +1075,17 @@ async function saveQuestion() {
             modal.hide();
         }
         
-        // Restaurar scroll
         setTimeout(() => {
-            // Remover backdrop
             const backdrop = document.querySelector('.modal-backdrop');
             if (backdrop) {
                 backdrop.remove();
             }
             
-            // FORZAR restauración del scroll
             document.body.classList.remove('modal-open');
             document.body.style.overflow = 'auto';
             document.body.style.paddingRight = '0px';
             document.body.style.position = '';
             
-            // Asegurar que el html también tenga scroll
             document.documentElement.style.overflow = 'auto';
         }, 100);
     }
@@ -1222,21 +1188,17 @@ async function saveAnswer() {
             modal.hide();
         }
         
-        // Restaurar scroll
         setTimeout(() => {
-            // Remover backdrop
             const backdrop = document.querySelector('.modal-backdrop');
             if (backdrop) {
                 backdrop.remove();
             }
             
-            // FORZAR restauración del scroll
             document.body.classList.remove('modal-open');
             document.body.style.overflow = 'auto';
             document.body.style.paddingRight = '0px';
             document.body.style.position = '';
             
-            // Asegurar que el html también tenga scroll
             document.documentElement.style.overflow = 'auto';
         }, 100);
     }
@@ -1327,21 +1289,17 @@ async function saveAttraction() {
             modal.hide();
         }
         
-        // Restaurar scroll
         setTimeout(() => {
-            // Remover backdrop
             const backdrop = document.querySelector('.modal-backdrop');
             if (backdrop) {
                 backdrop.remove();
             }
             
-            // FORZAR restauración del scroll
             document.body.classList.remove('modal-open');
             document.body.style.overflow = 'auto';
             document.body.style.paddingRight = '0px';
             document.body.style.position = '';
             
-            // Asegurar que el html también tenga scroll
             document.documentElement.style.overflow = 'auto';
         }, 100);
     }
@@ -1379,7 +1337,6 @@ function openProductModal(productId = null) {
     const form = document.getElementById('productForm');
     
     if (productId) {
-        // Editar producto existente
         const product = allProducts.find(p => p.id === productId);
         if (product) {
             document.getElementById('productModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Producto';
@@ -1389,7 +1346,6 @@ function openProductModal(productId = null) {
             document.getElementById('productProvince').value = product.provinceId;
         }
     } else {
-        // Nuevo producto
         document.getElementById('productModalTitle').innerHTML = '<i class="fas fa-plus"></i> Agregar Producto';
         form.reset();
         document.getElementById('productId').value = '';
@@ -1408,7 +1364,6 @@ async function fetchQuestionAnswers(questionId) {
         
         console.log('Answers received for question', questionId, ':', answers.length); // Debug
         
-        // Verificar que hay al menos una respuesta correcta
         const hasCorrectAnswer = answers.some(answer => answer.isCorrect);
         if (!hasCorrectAnswer) {
             console.warn('Question', questionId, 'has no correct answers');
@@ -1420,10 +1375,6 @@ async function fetchQuestionAnswers(questionId) {
         return [];
     }
 }
-
-// ================================
-// FUNCIONES DEL QUIZ - INTERFAZ
-// ================================
 
 function showQuizConfigModal() {
     const modal = new bootstrap.Modal(document.getElementById('quizConfigModal'));
@@ -1439,12 +1390,10 @@ async function startQuiz() {
     const configModal = bootstrap.Modal.getInstance(document.getElementById('quizConfigModal'));
     if (configModal) configModal.hide();
     
-    // Mostrar modal de loading
     showQuizModal();
     showQuizLoading();
     
     try {
-        // Cargar preguntas
         const questions = await fetchQuizQuestions(difficulty, provinceId);
         
         if (questions.length === 0) {
@@ -1455,7 +1404,6 @@ async function startQuiz() {
         
         console.log('Loading answers for', questions.length, 'questions'); // Debug
         
-        // Cargar respuestas para cada pregunta
         let validQuestions = [];
         for (let question of questions) {
             const answers = await fetchQuestionAnswers(question.id);
@@ -1473,7 +1421,6 @@ async function startQuiz() {
             return;
         }
         
-        // Inicializar quiz
         quizData = {
             questions: validQuestions,
             currentQuestionIndex: 0,
@@ -1513,7 +1460,6 @@ function displayCurrentQuestion() {
         return;
     }
     
-    // Restaurar el contenido del quiz si estaba oculto
     document.getElementById('quizContent').innerHTML = `
         <div class="question-container mb-4">
             <div class="d-flex justify-content-between align-items-start mb-3">
@@ -1770,9 +1716,6 @@ async function populateQuizProvinceSelect() {
     }
 }
 
-// ================================
-// FUNCIONES DE MODO ADMIN/PÚBLICO
-// ================================
 
 function toggleAdminMode() {
     isAdminMode = !isAdminMode;
@@ -1900,10 +1843,6 @@ async function populateProvinceSelects() {
         }
     });
 }
-
-// ================================
-// FUNCIONES DE MODAL - MODO PÚBLICO
-// ================================
 
 function showProvincesModal() {
     updateProvincesModal();
@@ -2226,16 +2165,16 @@ async function createProduct(productData) {
         });
         if (!response.ok) throw new Error('Error al crear producto');
         
-        console.log('🔵 POST exitoso, mostrando mensaje...'); // Debug
+        console.log('POST exitoso, mostrando mensaje...'); // Debug
         showSuccess('Producto creado exitosamente');
         
-        console.log('🔵 Recargando tabla...'); // Debug
+        console.log('Recargando tabla...'); // Debug
         await loadProductsForAdmin();
-        console.log('🔵 Tabla recargada'); // Debug
+        console.log('Tabla recargada'); // Debug
         
         return await response.json();
     } catch (error) {
-        console.error('🔴 Error en createProduct:', error); // Debug
+        console.error('Error en createProduct:', error); // Debug
         showError('No se pudo crear el producto: ' + error.message);
         return false;
     }
@@ -2258,24 +2197,7 @@ async function updateProduct(productData) {
     }
 }
 
-async function deleteProduct(id) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/typicalproducts/${id}`, {
-            method: 'DELETE'
-        });
-        if (!response.ok) throw new Error('Error al eliminar producto');
-        showSuccess('Producto eliminado exitosamente');
-        await loadProductsForAdmin();
-        return true;
-    } catch (error) {
-        showError('No se pudo eliminar el producto: ' + error.message);
-        return false;
-    }
-}
 
-// ================================
-// FUNCIONES DE CARGA - MODO PÚBLICO
-// ================================
 
 async function loadProvinces() {
     try {
@@ -2580,7 +2502,6 @@ function showQuizLoading() {
 }
 
 function hideQuizLoading() {
-    // La función displayCurrentQuestion se encargará de mostrar el contenido correcto
 }
 
 function showQuizError(message) {
