@@ -2549,7 +2549,6 @@ window.initMap = function() {
         zoom: 8,
         center: dominicana,
         styles: [
-            // Estilo personalizado (opcional)
             {
                 "featureType": "all",
                 "elementType": "geometry.fill",
@@ -2576,9 +2575,7 @@ window.initMap = function() {
     console.log('Google Maps inicializado');
 };
 
-// Agregar marcadores de provincias
 function addProvinceMarkers() {
-    // Limpiar marcadores existentes
     provinceMarkers.forEach(marker => marker.setMap(null));
     provinceMarkers = [];
     
@@ -2588,7 +2585,7 @@ function addProvinceMarkers() {
         9: { lat: 19.4515, lng: -70.6969, name: "Santiago" },
         19: { lat: 18.5204, lng: -68.3740, name: "La Altagracia" },
         20: { lat: 18.4273, lng: -68.9728, name: "La Romana" },
-        // Agrega más coordenadas según necesites
+ 
     };
     
     allProvinces.forEach(province => {
@@ -2604,11 +2601,9 @@ function addProvinceMarkers() {
                 }
             });
             
-            // Agregar click listener
             marker.addListener('click', () => {
                 selectProvince(province.id);
                 
-                // Crear info window
                 const infoWindow = new google.maps.InfoWindow({
                     content: `
                         <div style="padding: 10px;">
@@ -2627,7 +2622,6 @@ function addProvinceMarkers() {
     });
 }
 
-// Función para actualizar mapa cuando cambien las provincias
 function updateMapMarkers() {
     if (map && allProvinces.length > 0) {
         addProvinceMarkers();
