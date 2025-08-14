@@ -19,10 +19,6 @@ namespace InteractiveAtlas.Infrastucture.Repositories
             _context = context;
         }
 
-        //public async Task<List<TypicalProduct>> GetAllTypicalProductAsync()
-        //{
-        //    return await _context.TypicalProducts.ToListAsync();
-        //}
 
         public async Task<List<TypicalProduct>> GetAllTypicalProductByProvinceIdAsync(int provinceId)
         {
@@ -42,28 +38,6 @@ namespace InteractiveAtlas.Infrastucture.Repositories
         .FirstOrDefaultAsync(t => t.Id == id);
         }
 
-        //public async Task<TypicalProduct> AddTypicalProductAsync(TypicalProduct typicalproduct)
-        //{
-        //    _context.TypicalProducts.Add(typicalproduct);
-        //    return typicalproduct;
-        //}
 
-        //public async Task<TypicalProduct> UpdateTypicalProductAsync(TypicalProduct typicalproduct)
-        //{
-        //    _context.TypicalProducts.Update(typicalproduct);
-        //    return typicalproduct;
-        //}
-
-        //public async Task<bool> DeleteTypicalProductAsync(int id)
-        //{
-        //    var typicalproduct = await _context.TypicalProducts.FindAsync(id);
-        //    if (typicalproduct == null)
-        //    {
-        //        return false;
-        //    }
-
-        //    _context.TypicalProducts.Remove(typicalproduct);
-        //    return true;
-        //}
     }
 }

@@ -19,6 +19,15 @@ builder.Services.AddDbContext<InteractiveAtlasDbContext>(options =>
 //builder.Services.AddTransient<ProvinceRepository>();
 //create the nwe instance for each repository
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 builder.Services.AddScoped<IProvinceRepository, ProvinceRepository>();
 builder.Services.AddScoped<ITypicalProductRepository, TypicalProductRepository>();
@@ -55,6 +64,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors();
 
 app.UseHttpsRedirection();
 
