@@ -47,7 +47,7 @@ namespace InteractiveAtlas.Infrastucture.Repositories
         public async Task<bool> DeleteAsync(int id)
         {
             var entity = await GetByIdAsync(id);
-            if (entity != null)
+            if (entity == null)
                 return false;
 
             _context.Set<T>().Remove(entity);
