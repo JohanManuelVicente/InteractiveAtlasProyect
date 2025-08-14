@@ -998,7 +998,7 @@ window.exitQuiz = exitQuiz;
 
 async function initializeApp() {
     try {
-        console.log('Inicializando Atlas Dominicano...');
+        console.log('Iniciando Atlas Interactivo...');
         
         // Configurar event listeners
         setupEventListeners();
@@ -1006,6 +1006,12 @@ async function initializeApp() {
         
         // Cargar datos iniciales del modo público
         await loadProvinces();
+        
+        // Si Google Maps ya está cargado y hay provincias, inicializar marcadores
+        if (typeof google !== 'undefined' && window.map && allProvinces.length > 0) {
+            console.log('Inicializando marcadores de Google Maps...');
+            updateMapMarkers();
+        }
         
         console.log('Atlas Dominicano inicializado correctamente');
         
@@ -2219,6 +2225,12 @@ async function loadProvinces() {
         // Poblar select del quiz
         await populateQuizProvinceSelect();
         
+        // Actualizar marcadores del mapa si Google Maps está disponible
+        if (typeof google !== 'undefined' && window.map) {
+            console.log('🗺️ Actualizando marcadores del mapa...');
+            updateMapMarkers();
+        }
+        
     } catch (error) {
         console.error('Error loading provinces:', error);
     }
@@ -2520,6 +2532,107 @@ function showQuizError(message) {
     document.getElementById('quizContent-footer').style.display = 'none';
 }
 
+
+// ================================
+// GOOGLE MAPS INTEGRATION
+// ================================
+
+let map;
+let provinceMarkers = [];
+
+// Función que llama Google Maps cuando carga
+window.initMap = function() {
+    // Centrar el mapa en República Dominicana
+    const dominicana = { lat: 18.7357, lng: -70.1627 };
+    
+    map = new google.maps.Map(document.getElementById('mapContainer'), {
+        zoom: 8,
+        center: dominicana,
+        styles: [
+            // Estilo personalizado (opcional)
+            {
+                "featureType": "all",
+                "elementType": "geometry.fill",
+                "stylers": [{"weight": "2.00"}]
+            },
+            {
+                "featureType": "all",
+                "elementType": "geometry.stroke",
+                "stylers": [{"color": "#9c9c9c"}]
+            },
+            {
+                "featureType": "all",
+                "elementType": "labels.text",
+                "stylers": [{"visibility": "on"}]
+            }
+        ]
+    });
+    
+    // Cargar marcadores cuando el mapa esté listo
+    if (allProvinces.length > 0) {
+        addProvinceMarkers();
+    }
+    
+    console.log('Google Maps inicializado');
+};
+
+// Agregar marcadores de provincias
+function addProvinceMarkers() {
+    // Limpiar marcadores existentes
+    provinceMarkers.forEach(marker => marker.setMap(null));
+    provinceMarkers = [];
+    
+    // Coordenadas aproximadas de algunas provincias principales
+    const provinceCoordinates = {
+        1: { lat: 18.4861, lng: -69.9312, name: "Distrito Nacional" },
+        9: { lat: 19.4515, lng: -70.6969, name: "Santiago" },
+        19: { lat: 18.5204, lng: -68.3740, name: "La Altagracia" },
+        20: { lat: 18.4273, lng: -68.9728, name: "La Romana" },
+        // Agrega más coordenadas según necesites
+    };
+    
+    allProvinces.forEach(province => {
+        const coords = provinceCoordinates[province.id];
+        if (coords) {
+            const marker = new google.maps.Marker({
+                position: { lat: coords.lat, lng: coords.lng },
+                map: map,
+                title: province.name,
+                icon: {
+                    url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDOC4xMyAyIDUgNS4xMyA1IDlDNSAxNC4yNSAxMiAyMiAxMiAyMkMxMiAyMiAxOSAxNC4yNSAxOSA5QzE5IDUuMTMgMTUuODcgMiAxMiAyWk0xMiAxMS41QzEwLjYyIDExLjUgOS41IDEwLjM4IDkuNSA5QzkuNSA3LjYyIDEwLjYyIDYuNSAxMiA2LjVDMTMuMzggNi41IDE0LjUgNy42MiAxNC41IDlDMTQuNSAxMC4zOCAxMy4zOCAxMS41IDEyIDExLjVaIiBmaWxsPSIjMzQ5OGRiIi8+Cjwvc3ZnPgo=',
+                    scaledSize: new google.maps.Size(30, 30)
+                }
+            });
+            
+            // Agregar click listener
+            marker.addListener('click', () => {
+                selectProvince(province.id);
+                
+                // Crear info window
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <div style="padding: 10px;">
+                            <h6 style="margin: 0 0 5px 0; color: #2c3e50;">${province.name}</h6>
+                            <p style="margin: 0; color: #7f8c8d;">Capital: ${province.capital}</p>
+                            <p style="margin: 0; color: #7f8c8d;">Población: ${formatNumber(province.population)}</p>
+                        </div>
+                    `
+                });
+                
+                infoWindow.open(map, marker);
+            });
+            
+            provinceMarkers.push(marker);
+        }
+    });
+}
+
+// Función para actualizar mapa cuando cambien las provincias
+function updateMapMarkers() {
+    if (map && allProvinces.length > 0) {
+        addProvinceMarkers();
+    }
+}
 
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
