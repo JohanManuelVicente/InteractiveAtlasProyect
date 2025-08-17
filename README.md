@@ -18,10 +18,10 @@ El Atlas Interactivo de República Dominicana es una plataforma web que ofrece u
 ## Tecnologías Utilizadas
 
 - **Backend**: ASP.NET Core Web API
-- **Frontend**: ASP.NET MVC 5, HTML5, CSS3, JavaScript (AJAX/Fetch)
+- **Frontend**: ASP.NET MVC 5, HTML5, CSS3, JavaScript (Vanilla)
 - **Base de Datos**: SQL Server
 - **Control de Versiones**: Git + GitHub
-- **Mapas**: SVG o imagen mapeada con coordenadas
+- **Mapa de RD**: Obtenida por API de Google Maps 
 
 ---
 
@@ -33,7 +33,7 @@ El Atlas Interactivo de República Dominicana es una plataforma web que ofrece u
 - Quiz geográfico educativo.
 - API RESTful para alimentar dinámicamente la vista.
 - Estructura profesional: separada en capas (MVC, API, DAL).
-- Panel de administración (en desarrollo).
+- Panel de administración.
 
 
 
