@@ -26,6 +26,43 @@ let quizData = {
     provinceId: null
 };
 
+// PROTECCIÓN DE SESIÓN Y AUTENTICACIÓN
+// ==========================================
+// Verificar autenticación al cargar la página
+(function checkAuthentication() {
+    const session = localStorage.getItem('atlasSession');
+    
+    // Si no hay sesión autenticada, redirigir al login
+    if (session !== 'authenticated') {
+        console.log('⚠️ No hay sesión activa, redirigiendo al login...');
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    // Sesión activa - Mostrar información del usuario
+    console.log('✅ Sesión activa detectada');
+    const username = localStorage.getItem('atlasUser');
+    if (username) {
+        console.log('👤 Usuario:', username);
+        
+        // Opcional: Mostrar el nombre de usuario en el header si tienes un elemento para eso
+        // Por ejemplo:
+        // const userElement = document.getElementById('currentUser');
+        // if (userElement) {
+        //     userElement.textContent = username;
+        // }
+    }
+})();
+// ==========================================
+// FIN DE LA PROTECCIÓN DE SESIÓN
+// ==========================================
+
+// Tu código existente continúa aquí...
+// function showLoading() {
+//     console.log('Cargando datos...');
+// }
+// etc...
+
 
 function showLoading() {
     console.log('Cargando datos...');
@@ -710,6 +747,11 @@ async function saveProduct() {
         return;
     }
     
+    if (name.length < 3) {
+        showError('El nombre debe tener al menos 3 caracteres', 'error');
+        return;
+    }
+
     const productData = {
         name: name,
         description: description || null,
@@ -2632,3 +2674,4 @@ function updateMapMarkers() {
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
 });
+

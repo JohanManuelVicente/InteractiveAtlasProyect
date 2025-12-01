@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Atlas Interactivo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            width: 400px;
+            max-width: 90%;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Cuando hay error, el input se pone rojo */
+        .form-group input.error {
+            border-color: #c33;
+        }
+
+        #loginButton {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #loginButton:hover {
+            transform: translateY(-2px);
+        }
+
+        #loginButton:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #errorMessage {
+            display: none;
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+            border: 1px solid #fcc;
+        }
+
+        .credentials-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .credentials-info strong {
+            color: #333;
+        }
+
+        .credentials-info code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>🌎 Atlas Interactivo</h1>
+            <p>Panel de Administración</p>
+        </div>
+
+        <div id="errorMessage"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Usuario</label>
+                <input type="text" id="username" name="username" autocomplete="username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" autocomplete="current-password" required>
+            </div>
+
+            <button type="submit" id="loginButton">Iniciar Sesión</button>
+        </form>
+
+        <div class="credentials-info">
+            <strong>Credenciales de prueba:</strong><br>
+            Usuario: <code>admin</code><br>
+            Contraseña: <code>admin123</code>
+        </div>
+    </div>
+
+    <script>
+        // Array de usuarios autorizados (simulación sin backend)
+        const authorizedUsers = [
+            { username: 'admin', password: 'admin123' },
+            { username: 'johananeuris', password: 'itla2024' }
+        ];
+
+        // Elementos del DOM
+        const loginForm = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginButton = document.getElementById('loginButton');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Función para mostrar error (PERMANENTE - se queda hasta que el usuario escriba)
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            
+            // Agregar clase de error a los inputs
+            usernameInput.classList.add('error');
+            passwordInput.classList.add('error');
+            
+            // ⚠️ NO HAY setTimeout - el mensaje se queda permanente
+        }
+
+        // Función para ocultar error
+        function hideError() {
+            errorMessage.style.display = 'none';
+            
+            // Quitar clase de error de los inputs
+            usernameInput.classList.remove('error');
+            passwordInput.classList.remove('error');
+        }
+
+        // Función para validar campos vacíos
+        function validateEmptyFields(username, password) {
+            if (!username || !password) {
+                showError('Todos los campos son obligatorios');
+                return false;
+            }
+            return true;
+        }
+
+        // Función para validar credenciales
+        function validateCredentials(username, password) {
+            return authorizedUsers.some(user => 
+                user.username === username && user.password === password
+            );
+        }
+
+        // Función para validar longitud mínima
+        function validateMinLength(username, password) {
+            if (username.length < 3) {
+                showError('El usuario debe tener al menos 3 caracteres');
+                return false;
+            }
+            if (password.length < 6) {
+                showError('La contraseña debe tener al menos 6 caracteres');
+                return false;
+            }
+            return true;
+        }
+
+        // Ocultar error cuando el usuario empieza a escribir
+        usernameInput.addEventListener('input', hideError);
+        passwordInput.addEventListener('input', hideError);
+
+        // Evento de submit del formulario
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Ocultar error anterior si existe
+            hideError();
+            
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            // Deshabilitar botón mientras procesa
+            loginButton.disabled = true;
+            loginButton.textContent = 'Validando...';
+            
+            // Validación 1: Campos vacíos
+            if (!validateEmptyFields(username, password)) {
+                loginButton.disabled = false;
+                loginButton.textContent = 'Iniciar Sesión';
+                return;
+            }
+            
+            // Validación 2: Longitud mínima
+            if (!validateMinLength(username, password)) {
+                loginButton.disabled = false;
+                loginButton.textContent = 'Iniciar Sesión';
+                return;
+            }
+            
+            // Validación 3: Credenciales correctas
+            if (!validateCredentials(username, password)) {
+                showError('Credenciales incorrectas. Por favor, intente de nuevo.');
+                loginButton.disabled = false;
+                loginButton.textContent = 'Iniciar Sesión';
+                return;
+            }
+            
+            // Login exitoso
+            console.log('Login exitoso para:', username);
+            
+            // Guardar sesión en localStorage
+            localStorage.setItem('atlasSession', 'authenticated');
+            localStorage.setItem('atlasUser', username);
+            
+            // Mostrar mensaje de éxito
+            loginButton.textContent = '¡Exitoso! Redirigiendo...';
+            
+            // Redirigir al index.html después de un breve delay
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 500);
+        });
+
+        // Verificar si ya hay sesión activa al cargar la página
+        window.addEventListener('DOMContentLoaded', function() {
+            const session = localStorage.getItem('atlasSession');
+            if (session === 'authenticated') {
+                console.log('Sesión activa detectada, redirigiendo a index...');
+                // Ya está autenticado, redirigir directamente
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Manejar Enter key en los inputs
+        usernameInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                passwordInput.focus();
+            }
+        });
+
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                loginForm.dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>
